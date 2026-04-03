@@ -21,86 +21,78 @@
         .dialogue-wrapper { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); width: 92%; max-width: 850px; z-index: 100; }
         .dialogue-box { background: var(--glass); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); border: 1px solid var(--border); border-left: 5px solid var(--qin-red); padding: 30px 40px; min-height: 140px; position: relative; border-radius: 4px; transition: border-color 0.3s; }
         
-        .name-tag { 
-            position: absolute; top: -16px; left: 25px; 
-            background: var(--qin-red); color: white; 
-            padding: 2px 20px; font-weight: bold; letter-spacing: 2px; 
-            font-size: 0.9rem; box-shadow: 3px 3px 0px #000; transition: background 0.3s; 
-        }
-
-        .text-content { font-size: 1.15rem; line-height: 1.7; letter-spacing: 0.5px; color: #ddd; }
+        .name-tag { position: absolute; top: -16px; left: 25px; background: var(--qin-red); color: white; padding: 2px 20px; font-weight: bold; letter-spacing: 2px; font-size: 0.9rem; box-shadow: 3px 3px 0px #000; transition: background 0.3s; text-transform: uppercase; }
+        .text-content { font-size: 1.1rem; line-height: 1.6; letter-spacing: 0.5px; color: #ddd; }
+        
         .box-controls { position: absolute; top: 10px; right: 15px; display: flex; gap: 10px; }
-        .ctrl-btn { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #aaa; font-size: 0.75rem; padding: 4px 12px; cursor: pointer; transition: 0.3s; }
+        .ctrl-btn { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #aaa; font-size: 0.7rem; padding: 4px 12px; cursor: pointer; transition: 0.3s; text-transform: uppercase; }
         .ctrl-btn:hover { background: var(--qin-red); color: white; }
-        .click-hint { position: absolute; bottom: 15px; right: 20px; font-size: 0.75rem; color: var(--qin-red); opacity: 0.8; }
-
+        
+        .click-hint { position: absolute; bottom: 15px; right: 20px; font-size: 0.7rem; color: var(--qin-red); opacity: 0.8; font-weight: bold; }
+        
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.92); z-index: 1000; display: none; justify-content: center; align-items: center; }
         .modal-content { background: #111; padding: 35px; border-top: 3px solid var(--qin-red); text-align: center; width: 340px; box-shadow: 0 20px 50px rgba(0,0,0,0.8); }
+        
         .modal-btns { display: flex; gap: 15px; margin-top: 30px; }
-        .m-btn { flex: 1; padding: 12px; cursor: pointer; font-weight: bold; border: 1px solid #444; background: transparent; color: #fff; text-decoration: none; display: inline-block; font-size: 0.9rem; }
+        .m-btn { flex: 1; padding: 12px; cursor: pointer; font-weight: bold; border: 1px solid #444; background: transparent; color: #fff; text-decoration: none; display: inline-block; font-size: 0.8rem; }
         .m-btn.confirm { background: var(--qin-red); border-color: var(--qin-red); }
-
+        
         .credits-list { text-align: left; margin: 25px 0; }
         .credits-item { margin-bottom: 20px; border-bottom: 1px solid #222; padding-bottom: 8px; }
-        .credits-label { color: var(--qin-red); font-size: 0.7rem; font-weight: bold; display: block; letter-spacing: 1px; margin-bottom: 4px; text-transform: uppercase; }
-        .credits-name { color: #fff; font-size: 0.95rem; display: flex; flex-direction: column; gap: 4px; }
-        .social-link { color: #70a1ff; text-decoration: none; font-size: 0.85rem; transition: 0.3s; }
+        .credits-label { color: var(--qin-red); font-size: 0.65rem; font-weight: bold; display: block; letter-spacing: 1.5px; margin-bottom: 4px; text-transform: uppercase; }
+        .credits-name { color: #fff; font-size: 0.9rem; display: flex; flex-direction: column; gap: 4px; }
+        .social-link { color: #70a1ff; text-decoration: none; font-size: 0.8rem; transition: 0.3s; }
         .social-link:hover { color: #fff; text-decoration: underline; }
-
+        
         #history-menu { position: fixed; top: 0; right: -320px; width: 300px; height: 100%; background: rgba(10, 5, 5, 0.98); z-index: 500; padding: 60px 30px; transition: 0.4s; border-left: 1px solid var(--qin-red); }
         #history-menu.active { right: 0; }
-        .menu-item { padding: 18px 10px; border-bottom: 1px solid #222; cursor: pointer; color: #777; font-size: 0.9rem; }
+        .menu-item { padding: 18px 10px; border-bottom: 1px solid #222; cursor: pointer; color: #777; font-size: 0.85rem; }
         .menu-item:hover, .menu-item.active { color: var(--qin-red); }
-        
-        @media (max-width: 600px) { .dialogue-box { padding: 25px 20px; min-height: 120px; } .text-content { font-size: 1rem; } .box-controls { top: -40px; right: 0; } }
+
+        @media (max-width: 600px) { .dialogue-box { padding: 25px 20px; min-height: 120px; } .text-content { font-size: 0.95rem; } .box-controls { top: -40px; right: 0; } }
     </style>
 </head>
 <body>
     <!-- Exit Confirmation -->
     <div id="exit-modal" class="modal-overlay">
         <div class="modal-content">
-            <h3 style="margin-top:0;">End Recollection</h3>
-            <p style="color: #888; font-size: 0.85rem;">Are you sure you want to return to the duel?</p>
+            <h3 style="margin-top:0; color: var(--qin-red);">End Memory</h3>
+            <p style="color: #888; font-size: 0.8rem;">Are you sure you want to return to the duel?</p>
             <div class="modal-btns">
-                <button class="m-btn" onclick="toggleExit(false)">Cancel</button>
-                <button class="m-btn confirm" onclick="location.href='game_en.html'">Confirm</button>
+                <button class="m-btn" onclick="toggleExit(false)">CANCEL</button>
+                <button class="m-btn confirm" onclick="location.href='game_en.html'">CONFIRM</button>
             </div>
         </div>
     </div>
 
-    <!-- STAFF LIST -->
+    <!-- Staff Credits -->
     <div id="credits-modal" class="modal-overlay">
         <div class="modal-content">
-            <h3 style="letter-spacing: 5px; color: var(--qin-red); margin-top:0;">STAFF</h3>
+            <h3 style="letter-spacing: 4px; color: var(--qin-red); margin-top:0;">STAFF</h3>
             <div class="credits-list">
                 <div class="credits-item">
                     <span class="credits-label">Artist</span>
-                    <div class="credits-name">
-                        <span>TsangFei蒼斐</span>
-                        <a href="https://x.com/TsangFeiLAD" target="_blank" class="social-link">@TsangFeiLAD</a>
-                    </div>
+                    <div class="credits-name"><span>TsangFei</span><a href="https://x.com/TsangFeiLAD" target="_blank" class="social-link">@TsangFeiLAD</a></div>
                 </div>
                 <div class="credits-item">
                     <span class="credits-label">Web Design</span>
-                    <div class="credits-name">
-                        <span>蒼斐</span>
-                        <a href="https://x.com/TsangFeiLAD" target="_blank" class="social-link">@TsangFeiLAD</a>
-                    </div>
+                    <div class="credits-name"><span>TsangFei</span><a href="https://x.com/TsangFeiLAD" target="_blank" class="social-link">@TsangFeiLAD</a></div>
                 </div>
                 <div class="credits-item">
                     <span class="credits-label">Software</span>
-                    <span class="credits-name" style="font-size: 0.85rem; color: #888;">Google AI studio</span>
+                    <span class="credits-name" style="font-size: 0.8rem; color: #888;">Google AI Studio</span>
                 </div>
             </div>
-            <button class="m-btn confirm" style="width:100%;" onclick="closeCredits()">Finish</button>
+            <button class="m-btn confirm" style="width:100%;" onclick="closeCredits()">CLOSE</button>
         </div>
     </div>
 
+    <!-- Main Scene -->
     <div id="scene-container" onclick="nextBeat()">
         <div class="dialogue-wrapper">
-            <div id="main-dialogue-box" class="dialogue-box" onclick="event.stopPropagation()">
-                <div id="display-name" class="name-tag">NAME</div>
-                <div class="box-controls">
+           <div id="main-dialogue-box" class="dialogue-box">
+                <div id="display-name" class="name-tag">Player Name</div>
+                <div class="box-controls" onclick="event.stopPropagation()">
                     <button class="ctrl-btn" onclick="toggleMenu(true)">Menu</button>
                     <button class="ctrl-btn" onclick="toggleExit(true)">Exit</button>
                 </div>
@@ -109,28 +101,34 @@
             </div>
         </div>
     </div>
-    
+
+    <!-- History Menu -->
     <div id="history-menu">
-        <h2 style="color:var(--qin-red); font-size: 1.2rem; margin-bottom:30px;">BIRTHDAY SPECIAL</h2>
+        <h2 style="color:var(--qin-red); font-size: 1.1rem; margin-bottom:30px; letter-spacing: 3px;">WIN RECORD</h2>
         <div id="menu-list"></div>
-        <button onclick="location.href='game_en.html'" style="margin-top:20px; background:rgba(255,255,255,0.05); border:1px solid var(--qin-red); color:var(--qin-red); cursor:pointer; width:100%; padding:10px; font-weight:bold;">RETURN TO DUEL</button>
-        <button onclick="toggleMenu(false)" style="margin-top:10px; background:none; border:1px solid #444; color:#666; cursor:pointer; width:100%; padding:10px; font-size: 0.7rem;">CLOSE MENU</button>
+        <button onclick="location.href='game.html'" style="margin-top:20px; background:rgba(255,255,255,0.05); border:1px solid var(--qin-red); color:var(--qin-red); cursor:pointer; width:100%; padding:12px; font-weight:bold; letter-spacing: 1px; font-size: 0.75rem;">RETURN TO DUEL</button>
+        <button onclick="toggleMenu(false)" style="margin-top:10px; background:none; border:1px solid #444; color:#666; cursor:pointer; width:100%; padding:10px; font-size: 0.65rem;">CLOSE MENU</button>
     </div>
 
     <script>
-        const playerName = localStorage.getItem('qin_player_name') || "Kitten";
+        // Get player name or use default
+        const playerName = localStorage.getItem('qin_player_name') || "Sweetie";
 
         const storyBeat = [
-            { img: "https://via.placeholder.com/1200x1800?text=Birthday_1", speaker: "player", text: "Since I won, you have to follow my orders today. Happy Birthday, Sylus." },
-            { img: "https://via.placeholder.com/1200x1800?text=Birthday_2", speaker: "player", text: "Put these cat ears on... and don't take them off. The invincible leader of Onychinus looks much 'tamer' now." },
-            { img: "https://via.placeholder.com/1200x1800?text=Birthday_3", speaker: "player", text: "Open wide and eat this piece of cake. It's the birthday boy's duty. Don't frown, and don't spit it out." },
-            { img: "https://via.placeholder.com/1200x1800?text=Birthday_4", speaker: "player", text: "What, didn't expect to be 'ordered around' by me? Sylus, your expression right now is priceless." },
-            { img: "https://via.placeholder.com/1200x1800?text=Birthday_5", speaker: "sylus", text: "(He suddenly grabs your wrists and pins you to the sofa) 'Ordering me around? You seem to have forgotten... letting you play with me is also part of my game.'" },
-            { img: "https://via.placeholder.com/1200x1800?text=Birthday_6", speaker: "sylus", text: ` 'I've received my birthday gift. Now... it's my turn to collect the debt you owe me, ${playerName}.' ` }
+            { img: "assets/win_1.webp", speaker: "player", text: "Since I won, per our agreement, everything you do today is under my command. Happy Birthday, Sylus." },
+            { img: "assets/win_2.webp", speaker: "player", text: "Put these cat ears on... and don't you dare take them off. The 'unapproachable' leader of Onychinus looks much more 'submissive' now." },
+            { img: "assets/win_3.speaker", speaker: "player", text: "Open wide and eat this piece of cake. It's your duty as the birthday boy. No frowning, and definitely no spitting it out." },
+            { img: "assets/win_4.webp", speaker: "player", text: `What's the matter? Didn't expect to be at my mercy like this? Sylus, your expression right now is truly priceless.` },
+            { img: "assets/win_5.webp", speaker: "sylus", text: "(Suddenly, he grabs your wrist and pins you against the sofa.) 'At your mercy? You seem to forget... indulging your little games is just another way I play my cards.'" },
+            { img: "assets/win_6.webp", speaker: "sylus", text: `'I've already received my birthday gift. As for the rest of the night... it's my turn to collect what you owe me, ${playerName}.'` }
         ];
 
         let currentBeat = 0;
-        const scene = document.getElementById('scene-container'), textEl = document.getElementById('dialogue-text'), nameEl = document.getElementById('display-name'), boxEl = document.getElementById('main-dialogue-box'), menuList = document.getElementById('menu-list');
+        const scene = document.getElementById('scene-container'), 
+              textEl = document.getElementById('dialogue-text'), 
+              nameEl = document.getElementById('display-name'), 
+              boxEl = document.getElementById('main-dialogue-box'), 
+              menuList = document.getElementById('menu-list');
 
         function initStory() {
             updateScene();
@@ -146,24 +144,60 @@
         function updateScene() {
             const beat = storyBeat[currentBeat];
             scene.style.backgroundImage = `url('${beat.img}')`;
+            
+            // Switch UI style based on speaker
             if (beat.speaker === "player") {
-                nameEl.innerText = playerName; nameEl.style.background = "var(--p1-blue)"; boxEl.style.borderLeftColor = "var(--p1-blue)";
+                nameEl.innerText = playerName;
+                nameEl.style.background = "var(--p1-blue)";
+                boxEl.style.borderLeftColor = "var(--p1-blue)";
             } else {
-                nameEl.innerText = "Sylus"; nameEl.style.background = "var(--qin-red)"; boxEl.style.borderLeftColor = "var(--qin-red)";
+                nameEl.innerText = "Sylus";
+                nameEl.style.background = "var(--qin-red)";
+                boxEl.style.borderLeftColor = "var(--qin-red)";
             }
-            textEl.style.transition = 'none'; textEl.style.opacity = 0;
-            setTimeout(() => { textEl.innerText = beat.text; textEl.style.transition = 'all 0.5s ease-out'; textEl.style.opacity = 1; }, 50);
-            document.querySelectorAll('.menu-item').forEach((item, idx) => item.classList.toggle('active', idx === currentBeat));
+
+            textEl.style.transition = 'none'; 
+            textEl.style.opacity = 0;
+            
+            setTimeout(() => {
+                textEl.innerText = beat.text;
+                textEl.style.transition = 'all 0.5s ease-out'; 
+                textEl.style.opacity = 1;
+            }, 50);
+
+            document.querySelectorAll('.menu-item').forEach((item, idx) => {
+                item.classList.toggle('active', idx === currentBeat);
+            });
         }
 
         function nextBeat() {
-            if (currentBeat < storyBeat.length - 1) { currentBeat++; updateScene(); } 
-            else { document.getElementById('credits-modal').style.display = 'flex'; }
+            if (currentBeat < storyBeat.length - 1) { 
+                currentBeat++; 
+                updateScene(); 
+            } else { 
+                document.getElementById('credits-modal').style.display = 'flex'; 
+            }
         }
-        function closeCredits() { document.getElementById('credits-modal').style.display = 'none'; toggleExit(true); }
-        function jumpToBeat(index) { currentBeat = index; updateScene(); toggleMenu(false); }
-        function toggleMenu(show) { document.getElementById('history-menu').classList.toggle('active', show); }
-        function toggleExit(show) { document.getElementById('exit-modal').style.display = show ? 'flex' : 'none'; }
+
+        function closeCredits() { 
+            document.getElementById('credits-modal').style.display = 'none'; 
+            toggleExit(true); 
+        }
+
+        function jumpToBeat(index) { 
+            currentBeat = index; 
+            updateScene(); 
+            toggleMenu(false); 
+        }
+
+        function toggleMenu(show) { 
+            document.getElementById('history-menu').classList.toggle('active', show); 
+        }
+
+        function toggleExit(show) { 
+            document.getElementById('exit-modal').style.display = show ? 'flex' : 'none'; 
+        }
+
         initStory();
     </script>
 </body>

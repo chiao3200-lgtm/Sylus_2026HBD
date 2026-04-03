@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>記憶對決：與秦徹的博弈 V.7</title>
+    <title>記憶對決：與秦徹的博弈 V.8</title>
     <style>
         :root {
             --bg-color: #050508;
@@ -55,6 +55,10 @@
                 grid-template-rows: repeat(3, clamp(90px, 22vh, 115px)) !important;
                 gap: 8px !important;
             }
+            /* 手機版圖鑑優化 */
+            .collection-outer { padding: 15px 5px !important; border-top: 2px solid rgba(255,211,42,0.3) !important; }
+            .collection-item { width: 48px !important; height: 48px !important; border-width: 1.5px !important; }
+            .collection-title { font-size: 0.75rem !important; margin-bottom: 10px !important; font-weight: bold; }
         }
 
         /* --- 收藏圖鑑樣式 --- */
@@ -74,10 +78,10 @@
             position: relative; width: 42px; height: 42px;
             background: #111; border: 1px solid #333;
             display: flex; align-items: center; justify-content: center;
-            filter: grayscale(1) brightness(0.3); transition: all 0.4s; border-radius: 2px;
+            filter: grayscale(1) brightness(0.3); transition: all 0.4s; border-radius: 4px;
         }
-        .collection-item.unlocked { filter: grayscale(0) brightness(1); border-color: rgba(255, 211, 42, 0.5); cursor: pointer; }
-        .collection-item.unlocked:hover { transform: scale(1.15); border-color: var(--accent); box-shadow: 0 0 10px var(--accent); }
+        .collection-item.unlocked { filter: grayscale(0) brightness(1); border-color: rgba(255, 211, 42, 0.5); cursor: pointer; box-shadow: 0 0 5px rgba(255,211,42,0.1); }
+        .collection-item.unlocked:hover { transform: scale(1.1); border-color: var(--accent); box-shadow: 0 0 15px var(--accent); }
         .collection-item img { width: 75%; height: 75%; object-fit: contain; pointer-events: none; }
         .collection-item .hint { position: absolute; bottom: 120%; left: 50%; transform: translateX(-50%); background: #000; color: var(--accent); font-size: 9px; padding: 2px 8px; white-space: nowrap; border-radius: 2px; display: none; border: 1px solid var(--accent); z-index: 1000; }
         .collection-item.unlocked:hover .hint { display: block; }
@@ -196,330 +200,334 @@
     </div>
 
     <script>
-        // --- 資源與數據資料庫 ---
-        const CARD_BACK_IMG = "assets/card_back.jpg"; 
-        const QIN_EXPRESSIONS = {
-            "normal":   { img: "assets/qin_normal.webp", msg: "小貓玩小貓牌?有趣。" },
-            "thinking": { img: "assets/qin_thinking.webp", msg: "讓我想想..." },
-            "match":    { img: "assets/qin_match.webp", msg: "這對牌我就收下了。" },
-            "fail":     { img: "assets/qin_fail.webp", msg: "嘖，記錯位置了嗎？" },
-            "win":      { img: "assets/qin_win.webp", msg: "勝負已分。" },
-            "lose":     { img: "assets/qin_lose.webp", msg: "不錯。" },
-            "punish":   { img: "assets/qin_punish.webp", msg: "連續五次了..." }
-        };
-        const CARD_TYPES = {
-            "梅菲斯特": "assets/crow.png", "Luke": "assets/luke.png", "Silas": "assets/silas.png",
-            "槍": "assets/gun.png", "寶石": "assets/gem.png", "紅酒": "assets/wine.png"
-        };
-        const DIALOGUES = {
-            player_match: ["連擊！再翻一次。", "記憶力挺好，這組歸妳了。", "嘖，被妳發現了。", "梅菲斯特似乎挺看好妳。", "不錯，節奏掌握得很好。"],
-            system_match: ["手感不錯，我繼續。", "這對我就收下了。", "不費吹灰之力。", "既然妳不要，那我就拿走了。", "這種程度的記憶，對我來說很簡單。"],
-            player_fail: ["記錯位置了嗎？有趣。", "妳的專注力跑哪去了？", "看來妳還需要多觀察。", "別盯著我看，牌在那邊。", "心不在焉？是在想我嗎？"],
-            system_fail: ["嘖，記錯了。", "看走眼了嗎？沒關係。", "給妳一個追上的機會。", "偶爾也想讓讓妳。", "剛才那個位置...我記住了。", "既然妳這麼努力，這分讓妳。"],
-            player_waiting: ["別讓我等太久。", "慢慢來，看妳糾結也是種樂趣。", "這麼難記嗎？", "需要我給點提示嗎？小狸花。", "思考的樣子倒是挺可愛。"],
-            system_waiting: ["輪到我了？那我就不客氣了。", "看好了，這才是正確的博弈方式。", "既然妳找不到，那我就替妳收下了。", "勝負的關鍵，往往就在一瞬間。"]
-        };
-        const ENDING_DATA = {
-            "梅菲斯特": { title: "結局：梅菲斯特的禮物", story: `<span class="story-narrative">妳成功拿到了梅菲斯特。秦徹注視著妳：</span><span class="sylus-quote">『這顆寶石梅菲斯覬覦已久，現在歸妳了。就當作是妳贏得的獎勵。』『嘎！！』</span>` },
-            "Luke": { title: "結局：銘謝惠顧", story: `<span class="story-narrative">妳翻開卡牌，裡面掉出一張 Luke 留下的字條：『銘謝惠顧，下次再來。』</span><span class="sylus-quote">『那小子的把戲...不過，這局妳確實贏了。想要什麼補償？』</span>` },
-            "Silas": { title: "結局：再來一次", story: `<span class="story-narrative">妳翻開了 Silas 的卡牌，背面凌亂的字跡寫著：『再來一次』。</span><span class="sylus-quote">『既然那傢伙都這麼說了，還要繼續嗎？我有的是時間陪妳玩。』</span>` },
-            "槍": { title: "結局：火力升級", story: `<span class="story-narrative">獲得了 N109 最新型號的手槍。秦徹優雅地靠在椅背上：</span><span class="sylus-quote">『挺適合妳，把它收好，下次見面時別對準我，否則...我會當真的。』</span>` },
-            "紅酒": { title: "結局：勝利的慶典", story: `<span class="story-narrative">秦徹開啟瓶塞，液體注入杯中。他舉杯致意：</span><span class="sylus-quote">『這是一支年份極佳的收藏。為妳的勝利乾杯，我的小英雄。』</span>` },
-            "寶石": { title: "結局：璀璨之物", story: `<span class="story-narrative">妳拿到了寶石。秦徹願賭服輸，緩緩將這枚象徵勝利的物品推向妳：</span><span class="sylus-quote">『妳跟梅菲斯特一樣對這些發光的東西情有獨鍾。拿去吧，它襯托妳剛剛好。』</span>` },
-            "lose_round": { title: "結局：失敗的小貓", story: `<span class="story-narrative">最後一張目標落入秦徹手中。他玩味地看著妳：</span><span class="sylus-quote">『看來妳今天的運氣和記性，都不足以支撐妳贏過我。這份敗北，妳就先收下吧。』</span>`, url: "lose_album.html" },
-            "win_album": { title: "隱藏驚喜：博弈獎勵", story: `<span class="story-narrative">連續三場博弈的勝利...這是妳應得的。</span><span class="sylus-quote">『不錯。既然妳贏了，這份回憶就歸妳了。我從不對贏家吝嗇。』</span>`, url: "win_album.html" },
-            "punishment": { title: "結局 C：懲罰遊戲", story: `<span class="story-narrative">連輸五次...妳是故意的嗎？</span><span class="sylus-quote">『既然腦袋記不住，那就用身體來記。我想，妳已經做好覺悟了吧？從現在起，妳只能對我說：喵。』</span>`, url: "punish_album.html" }
-        };
-
-        // --- 遊戲變數 ---
-        let currentTarget = "", playerName = "小狸花", currentPlayer = 1, flippedCards = [], isLocked = true, qinMemory = {};
-        let isFirstTurnOfRound = true; // 防 AI 首回殺
-        let targetPool = Object.keys(CARD_TYPES);
-        let consecutiveWins = parseInt(localStorage.getItem('qin_consecutive_wins')) || 0;
-        let consecutiveLosses = parseInt(localStorage.getItem('qin_consecutive_losses')) || 0;
-        let collection = JSON.parse(localStorage.getItem('qin_collection_v2')) || {};
-
-        // --- 初始化系統 ---
-        function preloadResources() {
-            const urls = [CARD_BACK_IMG, ...Object.values(QIN_EXPRESSIONS).map(e => e.img), ...Object.values(CARD_TYPES)];
-            const promises = urls.map(url => new Promise(resolve => { const img = new Image(); img.src = url; img.onload = resolve; img.onerror = resolve; }));
-            updateCollectionUI();
-            return Promise.race([Promise.all(promises), new Promise(r => setTimeout(r, 3000))]);
+    // --- 資源與數據資料庫 ---
+    const CARD_BACK_IMG = "assets/card_back.jpg"; 
+    const QIN_EXPRESSIONS = {
+        "normal":   { img: "assets/qin_normal.webp", msg: "小貓玩小貓牌?有趣。" },
+        "thinking": { img: "assets/qin_thinking.webp", msg: "讓我想想..." },
+        "match":    { img: "assets/qin_match.webp", msg: "這對牌我就收下了。" },
+        "fail":     { img: "assets/qin_fail.webp", msg: "嘖，記錯位置了嗎？" },
+        "win":      { img: "assets/qin_win.webp", msg: "勝負已分。" },
+        "lose":     { img: "assets/qin_lose.webp", msg: "不錯。" },
+        "punish":   { img: "assets/qin_punish.webp", msg: "連續五次了..." }
+    };
+    const CARD_TYPES = {
+        "梅菲斯特": "assets/crow.png", "薛明": "assets/luke.png", "薛影": "assets/silas.png",
+        "槍": "assets/gun.png", "寶石": "assets/gem.png", "紅酒": "assets/wine.png"
+    };
+    const DIALOGUES = {
+        player_match: ["連擊！再翻一次。", "記憶力挺好，這組歸妳了。", "嘖，被妳發現了。", "不錯，節奏掌握得很好。", "看來梅菲斯特很喜歡妳。"],
+        system_match: ["手感不錯，我繼續。", "這對我就收下了。", "不費吹灰之力。", "既然妳不要，那我就拿走了。", "這種程度的記憶，對我來說很簡單。"],
+        player_fail: ["記錯位置了嗎？有趣。", "妳的專注力跑哪去了？", "別盯著我看，牌在那邊。", "心不在焉？是在想我嗎？", "需要我給點提示嗎？小狸花。"],
+        system_fail: ["嘖，記錯了。", "看走眼了嗎？沒關係。", "給妳一個追上的機會。", "偶爾也想讓讓妳。", "剛才那個位置...我記住了。", "既然妳這麼努力，這分讓妳。"],
+        player_waiting: ["別讓我等太久。", "慢慢來，看妳糾結也是種樂趣。", "思考的樣子倒是挺可愛。", "這麼難記嗎？"],
+        system_waiting: ["輪到我了？那我就不客氣了。", "看好了，這才是正確的博弈方式。", "勝負的關鍵，往往就在一瞬間。"]
+    };
+    const ENDING_DATA = {
+        "梅菲斯特": { title: "結局：梅菲斯特的禮物", story: `<span class="story-narrative">妳成功拿到了梅菲斯特。秦徹注視著妳：</span><span class="sylus-quote">『這顆寶石梅菲斯覬覦已久，現在歸妳了。就當作是妳贏得的獎勵。』『嘎！！』</span>` },
+        "薛明": { title: "結局：銘謝惠顧", story: `<span class="story-narrative">妳翻開卡牌，裡面掉出一張 薛明 留下的字條：『銘謝惠顧，下次再來。』</span><span class="sylus-quote">『那小子的把戲...不過，這局妳確實贏了。想要什麼補償？』</span>` },
+        "薛影": { title: "結局：再來一次", story: `<span class="story-narrative">妳翻開了 薛影 的卡牌，背面凌亂的字跡寫著：『再來一次』。</span><span class="sylus-quote">『既然那傢伙都這麼說了，還要繼續嗎？我有的是時間陪妳玩。』</span>` },
+        "槍": { title: "結局：火力升級", story: `<span class="story-narrative">獲得了 N109 最新型號的手槍。秦徹優雅地靠在椅背上：</span><span class="sylus-quote">『挺適合妳，把它收好，下次見面時別對準我，否則...我會當真的。』</span>` },
+        "紅酒": { title: "結局：勝利的慶典", story: `<span class="story-narrative">秦徹開啟瓶塞，液體注入杯中。他舉杯致意：</span><span class="sylus-quote">『這是一支年份極佳的收藏。為妳的勝利乾杯，我的小英雄。』</span>` },
+        "寶石": { title: "結局：璀璨之物", story: `<span class="story-narrative">妳拿到了寶石。秦徹願賭服輸，緩緩將這枚象徵勝利的物品推向妳：</span><span class="sylus-quote">『妳跟梅菲斯特一樣對這些發光的東西情有獨鍾。拿去吧，它襯托妳剛剛好。』</span>` },
+        "lose_round": { title: "結局：失敗的小貓", story: `<span class="story-narrative">最後一張目標落入秦徹手中。他玩味地看著妳：</span><span class="sylus-quote">『看來妳今天的運氣和記性，都不足以支撐妳贏過我。這份敗北，妳就先收下吧。』</span>`, url: "lose_album.html" },
+        "win_album": { title: "隱藏驚喜：博弈獎勵", story: `<span class="story-narrative">連續三場博弈的勝利...這是妳應得的。</span><span class="sylus-quote">『不錯。既然妳贏了，這份回憶就歸妳了。我從不對贏家吝嗇。』</span>`, url: "win_album.html" },
+        "punishment": { title: "結局 C：懲罰遊戲", story: `<span class="story-narrative">連輸五次...妳是故意的嗎？</span><span class="sylus-quote">『既然腦袋記不住，那就用身體來記。我想，妳已經做好覺悟了吧？從現在起，妳只能對我說：喵。』</span>`, url: "punish_album.html" },
+        "trophy": { 
+            title: "成就：完美博弈收藏家", 
+            get story() { return `<img src="assets/qin_trophy_full.webp" style="width:100%; border-radius:8px; margin-bottom:15px; border:1px solid var(--accent); box-shadow: 0 0 15px rgba(255,211,42,0.3);"><span class="story-narrative">妳已經看透了秦徹所有的底牌，達成全圖鑑收集。</span><span class="sylus-quote">『竟然收集得這麼齊全...看來妳對我真的很執著，${playerName}。這份「特別的回憶」，就送給妳。』</span>`; }
         }
+    };
 
-        window.addEventListener('DOMContentLoaded', async () => {
-            const savedName = localStorage.getItem('qin_player_name');
-            if (savedName) {
-                playerName = savedName;
-                document.getElementById('p1-badge').innerText = playerName;
-                document.getElementById('setup-screen').style.display = 'none';
-                await preloadResources();
-                startNewRound(true);
-            } else {
-                document.getElementById('setup-screen').style.display = 'flex';
-            }
-        });
+    // --- 遊戲變數 ---
+    let currentTarget = "", playerName = "小狸花", currentPlayer = 1, flippedCards = [], isLocked = true, qinMemory = {};
+    let isFirstTurnOfRound = true; 
+    let targetPool = Object.keys(CARD_TYPES);
+    let consecutiveWins = parseInt(localStorage.getItem('qin_consecutive_wins')) || 0;
+    let consecutiveLosses = parseInt(localStorage.getItem('qin_consecutive_losses')) || 0;
+    let collection = JSON.parse(localStorage.getItem('qin_collection_v2')) || {};
 
-        async function initGame() {
-            const nameInput = document.getElementById('p-name-input');
-            if (nameInput.value.trim()) playerName = nameInput.value.trim();
+    // --- 初始化系統 ---
+    function preloadResources() {
+        const urls = [CARD_BACK_IMG, ...Object.values(QIN_EXPRESSIONS).map(e => e.img), ...Object.values(CARD_TYPES)];
+        const promises = urls.map(url => new Promise(resolve => { const img = new Image(); img.src = url; img.onload = resolve; img.onerror = resolve; }));
+        updateCollectionUI();
+        return Promise.race([Promise.all(promises), new Promise(r => setTimeout(r, 3000))]);
+    }
+
+    window.addEventListener('DOMContentLoaded', async () => {
+        const savedName = localStorage.getItem('qin_player_name');
+        if (savedName) {
+            playerName = savedName;
             document.getElementById('p1-badge').innerText = playerName;
-            localStorage.setItem('qin_player_name', playerName);
             document.getElementById('setup-screen').style.display = 'none';
             await preloadResources();
             startNewRound(true);
+        } else {
+            document.getElementById('setup-screen').style.display = 'flex';
         }
+    });
 
-        function updateCollectionUI() {
-            const bar = document.getElementById('collection-bar');
-            if(!bar) return; bar.innerHTML = '';
-            const items = [
-                { id: "梅菲斯特", icon: CARD_TYPES["梅菲斯特"], label: "梅的禮物" },
-                { id: "Luke", icon: CARD_TYPES["Luke"], label: "Luke字條" },
-                { id: "Silas", icon: CARD_TYPES["Silas"], label: "Silas字條" },
-                { id: "槍", icon: CARD_TYPES["槍"], label: "火力升級" },
-                { id: "紅酒", icon: CARD_TYPES["紅酒"], label: "勝利慶典" },
-                { id: "寶石", icon: CARD_TYPES["寶石"], label: "璀璨之物" },
-                { id: "lose_round", icon: CARD_BACK_IMG, label: "敗北記憶" },
-                { id: "win_album", icon: "🐾", label: "連勝相簿", isText: true, hasUrl: true },
-                { id: "punishment", icon: "⛓️", label: "懲罰遊戲", isText: true, hasUrl: true }
-            ];
-            items.forEach(item => {
-                const div = document.createElement('div');
-                div.className = `collection-item ${collection[item.id] ? 'unlocked' : ''}`;
-                if(item.isText) { div.innerText = item.icon; div.style.fontSize = "18px"; div.style.color = "#eee"; } 
-                else { const img = document.createElement('img'); img.src = item.icon; div.appendChild(img); }
-                const hint = document.createElement('span'); hint.className = 'hint'; hint.innerText = item.label; div.appendChild(hint);
-                if(collection[item.id]) { div.onclick = () => viewRecollection(item.id, item.hasUrl); }
-                bar.appendChild(div);
-            });
-            checkFullCollection();
-        }
+    async function initGame() {
+        const nameInput = document.getElementById('p-name-input');
+        if (nameInput.value.trim()) playerName = nameInput.value.trim();
+        document.getElementById('p1-badge').innerText = playerName;
+        localStorage.setItem('qin_player_name', playerName);
+        document.getElementById('setup-screen').style.display = 'none';
+        await preloadResources();
+        startNewRound(true);
+    }
 
-        function viewRecollection(id, showLink) {
-            const data = ENDING_DATA[id];
-            const screen = document.getElementById('end-screen');
-            document.getElementById('end-title').innerText = data.title;
-            document.getElementById('end-desc').innerHTML = data.story;
-            const link = document.getElementById('gallery-link');
-            if (showLink && data.url) { link.classList.remove('hidden'); link.href = data.url; } else { link.classList.add('hidden'); }
-            document.getElementById('cat-paw').style.display = (id === 'win_album') ? 'block' : 'none';
-            document.getElementById('end-window').classList.toggle('punish', id === "punishment");
-            document.getElementById('modal-close-btn').innerText = "關閉回顧";
-            document.getElementById('modal-close-btn').onclick = () => { screen.style.display = 'none'; document.getElementById('modal-close-btn').onclick = startNewRound; };
-            screen.style.display = 'flex';
-        }
+    function updateCollectionUI() {
+        const bar = document.getElementById('collection-bar');
+        if(!bar) return; bar.innerHTML = '';
+        const items = [
+            { id: "梅菲斯特", icon: CARD_TYPES["梅菲斯特"], label: "梅的禮物" },
+            { id: "薛明", icon: CARD_TYPES["薛明"], label: "薛明字條" },
+            { id: "薛影", icon: CARD_TYPES["薛影"], label: "薛影字條" },
+            { id: "槍", icon: CARD_TYPES["槍"], label: "火力升級" },
+            { id: "紅酒", icon: CARD_TYPES["紅酒"], label: "勝利慶典" },
+            { id: "寶石", icon: CARD_TYPES["寶石"], label: "璀璨之物" },
+            { id: "lose_round", icon: CARD_BACK_IMG, label: "敗北記憶" },
+            { id: "win_album", icon: "🐾", label: "連勝相簿", isText: true, hasUrl: true },
+            { id: "punishment", icon: "⛓️", label: "懲罰遊戲", isText: true, hasUrl: true },
+            { id: "trophy", icon: "🏆", label: "完美成就", isText: true }
+        ];
+        items.forEach(item => {
+            const div = document.createElement('div');
+            div.className = `collection-item ${collection[item.id] ? 'unlocked' : ''}`;
+            if(item.isText) { div.innerText = item.icon; div.style.fontSize = "18px"; div.style.color = "#eee"; } 
+            else { const img = document.createElement('img'); img.src = item.icon; div.appendChild(img); }
+            const hint = document.createElement('span'); hint.className = 'hint'; hint.innerText = item.label; div.appendChild(hint);
+            if(collection[item.id]) { div.onclick = () => viewRecollection(item.id, item.hasUrl); }
+            bar.appendChild(div);
+        });
+    }
 
-        function checkFullCollection() {
-            const total = 9; // 包含敗北與兩個相簿共 9 個
-            if (Object.keys(collection).length >= total && !localStorage.getItem('qin_trophy_shown')) {
-                setTimeout(() => {
-                    const screen = document.getElementById('end-screen');
-                    document.getElementById('end-title').innerText = "🏆 完美博弈收藏家";
-                    document.getElementById('end-desc').innerHTML = `<span class="story-narrative">妳已經看透了秦徹所有的底牌。</span><span class="sylus-quote">『竟然收集得這麼齊全...看來妳對我真的很執著，${playerName}。這枚勳章，就送給妳當作紀念吧。』</span>`;
-                    document.getElementById('modal-close-btn').innerText = "收下勳章";
-                    document.getElementById('gallery-link').classList.add('hidden');
-                    document.getElementById('end-window').classList.add('complete');
-                    screen.style.display = 'flex';
-                    localStorage.setItem('qin_trophy_shown', 'true');
-                }, 1000);
-            }
-        }
+    function viewRecollection(id, showLink) {
+        const data = ENDING_DATA[id];
+        const screen = document.getElementById('end-screen');
+        const win = document.getElementById('end-window');
+        
+        document.getElementById('end-title').innerText = data.title;
+        document.getElementById('end-desc').innerHTML = (id === 'trophy') ? data.story : data.story;
+        
+        const link = document.getElementById('gallery-link');
+        if (showLink && data.url) { link.classList.remove('hidden'); link.href = data.url; } 
+        else { link.classList.add('hidden'); }
+        
+        document.getElementById('cat-paw').style.display = (id === 'win_album') ? 'block' : 'none';
+        win.classList.toggle('punish', id === "punishment");
+        win.classList.toggle('complete', id === "trophy");
+        
+        document.getElementById('modal-close-btn').innerText = "關閉回顧";
+        document.getElementById('modal-close-btn').onclick = () => { screen.style.display = 'none'; document.getElementById('modal-close-btn').onclick = startNewRound; };
+        screen.style.display = 'flex';
+    }
 
-        // --- 核心遊戲流程 ---
-        function startNewRound(isFirstStart = false) {
-            isLocked = true; // 開場鎖定
-            document.getElementById('end-screen').style.display = 'none';
-            document.getElementById('modal-close-btn').innerText = "繼續博弈";
-            document.getElementById('modal-close-btn').onclick = startNewRound;
-
-            // 隨機目標
-            if (targetPool.length === 0) targetPool = Object.keys(CARD_TYPES);
-            let uncollectedInPool = targetPool.filter(id => !collection[id]);
-            currentTarget = uncollectedInPool.length > 0 ? uncollectedInPool[Math.floor(Math.random() * uncollectedInPool.length)] : targetPool[Math.floor(Math.random() * targetPool.length)];
-
-            document.getElementById('target-name').innerText = currentTarget;
-            document.getElementById('target-icon').src = CARD_TYPES[currentTarget];
-
-            const grid = document.getElementById('grid');
-            grid.innerHTML = '';
-            const cardData = [...Object.keys(CARD_TYPES), ...Object.keys(CARD_TYPES)].sort(() => Math.random() - 0.5);
-            cardData.forEach((type, i) => {
-                const card = document.createElement('div');
-                card.className = 'card'; card.dataset.type = type; card.dataset.index = i;
-                card.innerHTML = `<div class="card-face card-back" style="background-image: url('${CARD_BACK_IMG}')"></div><div class="card-face card-front"><img src="${CARD_TYPES[type]}"></div>`;
-                card.onclick = () => { if(!isLocked && currentPlayer === 1 && !card.classList.contains('flipped')) handleFlip(card); };
-                grid.appendChild(card);
-            });
-
-            const lastWin = localStorage.getItem('qin_last_winner');
-            currentPlayer = lastWin ? parseInt(lastWin) : (Math.random() < 0.5 ? 1 : 2);
-            flippedCards = []; qinMemory = {};
-            isFirstTurnOfRound = true; 
-
+    function checkFullCollection() {
+        const currentCount = Object.keys(collection).filter(key => key !== 'trophy').length;
+        if (currentCount >= 9 && !collection['trophy']) {
+            collection['trophy'] = 1;
+            localStorage.setItem('qin_collection_v2', JSON.stringify(collection));
             setTimeout(() => {
-                if (currentPlayer === 2) {
-                    updateTurnUI();
-                    setQinState("thinking", isFirstStart ? "小貓玩小貓牌?有趣。" : "勝局由贏家掌控，這局由我先行。");
-                    setTimeout(qinAIAction, 1500);
-                } else {
-                    isLocked = false;
-                    updateTurnUI();
-                    setQinState("normal", isFirstStart ? "小貓玩小貓牌?有趣。" : DIALOGUES.player_waiting[Math.floor(Math.random()*DIALOGUES.player_waiting.length)]);
-                }
+                updateCollectionUI();
+                const screen = document.getElementById('end-screen');
+                const win = document.getElementById('end-window');
+                const data = ENDING_DATA['trophy'];
+                document.getElementById('end-title').innerText = data.title;
+                document.getElementById('end-desc').innerHTML = data.story;
+                document.getElementById('gallery-link').classList.add('hidden');
+                document.getElementById('cat-paw').style.display = 'none';
+                document.getElementById('modal-close-btn').innerText = "收下成就";
+                win.classList.add('complete');
+                screen.style.display = 'flex';
+            }, 2000);
+        }
+    }
+
+    function startNewRound(isFirstStart = false) {
+        isLocked = true;
+        document.getElementById('end-screen').style.display = 'none';
+        document.getElementById('end-window').classList.remove('complete', 'punish');
+        document.getElementById('modal-close-btn').innerText = "繼續博弈";
+        document.getElementById('modal-close-btn').onclick = startNewRound;
+
+        if (targetPool.length === 0) targetPool = Object.keys(CARD_TYPES);
+        let uncollectedInPool = targetPool.filter(id => !collection[id]);
+        currentTarget = uncollectedInPool.length > 0 ? uncollectedInPool[Math.floor(Math.random() * uncollectedInPool.length)] : targetPool[Math.floor(Math.random() * targetPool.length)];
+
+        document.getElementById('target-name').innerText = currentTarget;
+        document.getElementById('target-icon').src = CARD_TYPES[currentTarget];
+
+        const grid = document.getElementById('grid');
+        grid.innerHTML = '';
+        const cardData = [...Object.keys(CARD_TYPES), ...Object.keys(CARD_TYPES)].sort(() => Math.random() - 0.5);
+        cardData.forEach((type, i) => {
+            const card = document.createElement('div');
+            card.className = 'card'; card.dataset.type = type; card.dataset.index = i;
+            card.innerHTML = `<div class="card-face card-back" style="background-image: url('${CARD_BACK_IMG}'); background-size:cover;"></div><div class="card-face card-front"><img src="${CARD_TYPES[type]}"></div>`;
+            card.onclick = () => { if(!isLocked && currentPlayer === 1 && !card.classList.contains('flipped')) handleFlip(card); };
+            grid.appendChild(card);
+        });
+
+        const lastWin = localStorage.getItem('qin_last_winner');
+        currentPlayer = lastWin ? parseInt(lastWin) : (Math.random() < 0.5 ? 1 : 2);
+        flippedCards = []; qinMemory = {};
+        isFirstTurnOfRound = true; 
+
+        setTimeout(() => {
+            if (currentPlayer === 2) {
+                updateTurnUI();
+                setQinState("thinking", isFirstStart ? "小貓玩小貓牌?有趣。" : "勝局由贏家掌控，這局由我先行。");
+                setTimeout(qinAIAction, 1500);
+            } else {
+                isLocked = false;
+                updateTurnUI();
+                setQinState("normal", isFirstStart ? "小貓玩小貓牌?有趣。" : DIALOGUES.player_waiting[Math.floor(Math.random()*DIALOGUES.player_waiting.length)]);
+            }
+        }, 800);
+    }
+
+    function handleFlip(card) {
+        card.classList.add('flipped');
+        flippedCards.push(card);
+        qinMemory[card.dataset.index] = card.dataset.type;
+        if (flippedCards.length === 2) { isLocked = true; setTimeout(checkMatch, 700); }
+    }
+
+    function checkMatch() {
+        const [c1, c2] = flippedCards;
+        const isMatch = c1.dataset.type === c2.dataset.type;
+        if (isMatch) {
+            if (c1.dataset.type === currentTarget) { processEndingSequence(currentPlayer); return; }
+            const msg = (currentPlayer === 1) ? DIALOGUES.player_match[Math.floor(Math.random()*DIALOGUES.player_match.length)] : DIALOGUES.system_match[Math.floor(Math.random()*DIALOGUES.system_match.length)];
+            setQinState(currentPlayer === 2 ? "match" : "normal", msg);
+            isFirstTurnOfRound = false;
+            if (currentPlayer === 2) {
+                document.getElementById('qin-img').classList.add('shake');
+                setTimeout(() => {
+                    document.getElementById('qin-img').classList.remove('shake');
+                    flippedCards = []; qinAIAction();
+                }, 800);
+            } else { flippedCards = []; isLocked = false; }
+        } else {
+            const msgs = DIALOGUES[currentPlayer === 1 ? 'player_fail' : 'system_fail'];
+            setQinState(currentPlayer === 2 ? "fail" : "normal", msgs[Math.floor(Math.random() * msgs.length)]);
+            setTimeout(() => {
+                c1.classList.remove('flipped');
+                c2.classList.remove('flipped');
+                flippedCards = [];
+                isFirstTurnOfRound = false;
+                switchTurn();
             }, 800);
         }
+    }
 
-        function handleFlip(card) {
-            card.classList.add('flipped');
-            flippedCards.push(card);
-            qinMemory[card.dataset.index] = card.dataset.type;
-            if (flippedCards.length === 2) { isLocked = true; setTimeout(checkMatch, 700); }
+    function switchTurn() {
+        currentPlayer = (currentPlayer === 1) ? 2 : 1;
+        updateTurnUI();
+        if (currentPlayer === 2) { 
+            isLocked = true; 
+            setQinState("thinking", DIALOGUES.system_waiting[Math.floor(Math.random()*DIALOGUES.system_waiting.length)]); 
+            setTimeout(qinAIAction, 1000); 
+        } else { 
+            isLocked = false; 
+            setQinState("normal", DIALOGUES.player_waiting[Math.floor(Math.random()*DIALOGUES.player_waiting.length)]); 
         }
+    }
 
-        function checkMatch() {
-            const [c1, c2] = flippedCards;
-            const isMatch = c1.dataset.type === c2.dataset.type;
-
-            if (isMatch) {
-                if (c1.dataset.type === currentTarget) { processEndingSequence(currentPlayer); return; }
-                const msg = (currentPlayer === 1) ? DIALOGUES.player_match[Math.floor(Math.random()*DIALOGUES.player_match.length)] : DIALOGUES.system_match[Math.floor(Math.random()*DIALOGUES.system_match.length)];
-                setQinState(currentPlayer === 2 ? "match" : "normal", msg);
-                isFirstTurnOfRound = false;
-
-                if (currentPlayer === 2) {
-                    document.getElementById('qin-img').classList.add('shake');
-                    setTimeout(() => {
-                        document.getElementById('qin-img').classList.remove('shake');
-                        flippedCards = []; qinAIAction();
-                    }, 800);
-                } else {
-                    flippedCards = []; isLocked = false;
-                }
-            } else {
-                const msgs = DIALOGUES[currentPlayer === 1 ? 'player_fail' : 'system_fail'];
-                setQinState(currentPlayer === 2 ? "fail" : "normal", msgs[Math.floor(Math.random() * msgs.length)]);
-                setTimeout(() => {
-                    c1.classList.remove('flipped');
-                    c2.classList.remove('flipped');
-                    flippedCards = [];
-                    isFirstTurnOfRound = false;
-                    switchTurn();
-                }, 800);
-            }
+    function qinAIAction() {
+        const cards = document.querySelectorAll('.card');
+        const hidden = [...cards].filter(c => !c.classList.contains('flipped')).map(c => parseInt(c.dataset.index));
+        if (hidden.length === 0) return;
+        let p1, p2;
+        if (isFirstTurnOfRound) {
+            p1 = hidden[Math.floor(Math.random() * hidden.length)];
+            handleFlip(cards[p1]);
+            setTimeout(() => {
+                const remain = hidden.filter(idx => idx != p1);
+                p2 = remain[Math.floor(Math.random() * remain.length)];
+                handleFlip(cards[p2]);
+            }, 700);
+            return;
         }
-
-        function switchTurn() {
-            currentPlayer = (currentPlayer === 1) ? 2 : 1;
-            updateTurnUI();
-            if (currentPlayer === 2) { 
-                isLocked = true; 
-                setQinState("thinking", DIALOGUES.system_waiting[Math.floor(Math.random()*DIALOGUES.system_waiting.length)]); 
-                setTimeout(qinAIAction, 1000); 
-            }
-            else { 
-                isLocked = false; 
-                setQinState("normal", DIALOGUES.player_waiting[Math.floor(Math.random()*DIALOGUES.player_waiting.length)]); 
-            }
-        }
-
-        function qinAIAction() {
-            const cards = document.querySelectorAll('.card');
-            const hidden = [...cards].filter(c => !c.classList.contains('flipped')).map(c => parseInt(c.dataset.index));
-            if (hidden.length === 0) return;
-
-            let p1, p2;
-            
-            // 【首回殺防禦】：若為開場第一回合，AI 強制隨機
-            if (isFirstTurnOfRound) {
+        const inMem = Object.keys(qinMemory).filter(idx => qinMemory[idx] === currentTarget && hidden.includes(parseInt(idx)));
+        if (inMem.length >= 2) { p1 = inMem[0]; p2 = inMem[1]; } 
+        else {
+            const typeInMem = {};
+            hidden.forEach(idx => { const t = qinMemory[idx]; if(t) { if(typeInMem[t]) { p1 = typeInMem[t]; p2 = idx; } else { typeInMem[t] = idx; } } });
+            if(!p1) {
                 p1 = hidden[Math.floor(Math.random() * hidden.length)];
                 handleFlip(cards[p1]);
                 setTimeout(() => {
-                    const remain = hidden.filter(idx => idx != p1);
-                    p2 = remain[Math.floor(Math.random() * remain.length)];
+                    const m = Object.keys(qinMemory).find(idx => qinMemory[idx] === cards[p1].dataset.type && idx != p1 && hidden.includes(parseInt(idx)));
+                    p2 = m || hidden.filter(i => i != p1)[Math.floor(Math.random() * (hidden.length - 1))];
                     handleFlip(cards[p2]);
                 }, 700);
                 return;
             }
+        }
+        handleFlip(cards[p1]); setTimeout(() => handleFlip(cards[p2]), 700);
+    }
 
-            // 正常 AI 記憶邏輯
-            const inMem = Object.keys(qinMemory).filter(idx => qinMemory[idx] === currentTarget && hidden.includes(parseInt(idx)));
-            if (inMem.length >= 2) { 
-                p1 = inMem[0]; p2 = inMem[1]; 
-            } else {
-                const typeInMem = {};
-                hidden.forEach(idx => { const t = qinMemory[idx]; if(t) { if(typeInMem[t]) { p1 = typeInMem[t]; p2 = idx; } else { typeInMem[t] = idx; } } });
-                
-                if(!p1) {
-                    p1 = hidden[Math.floor(Math.random() * hidden.length)];
-                    handleFlip(cards[p1]);
-                    setTimeout(() => {
-                        const m = Object.keys(qinMemory).find(idx => qinMemory[idx] === cards[p1].dataset.type && idx != p1 && hidden.includes(parseInt(idx)));
-                        p2 = m || hidden.filter(i => i != p1)[Math.floor(Math.random() * (hidden.length - 1))];
-                        handleFlip(cards[p2]);
-                    }, 700);
-                    return;
-                }
+    function processEndingSequence(winner) {
+        let reaction = "", state = "", title = "", story = "", url = "";
+        const paw = document.getElementById('cat-paw');
+        const link = document.getElementById('gallery-link');
+        paw.style.display = 'none'; link.classList.add('hidden');
+        localStorage.setItem('qin_last_winner', winner);
+
+        if (winner === 1) {
+            consecutiveWins++; consecutiveLosses = 0; state = "lose"; 
+            reaction = consecutiveWins >= 2 ? `這已經是妳連贏的第 ${consecutiveWins} 局了。看來我得更認真點。` : "勝負已分。看來是我低估妳了。";
+            collection[currentTarget] = 1;
+            const base = ENDING_DATA[currentTarget]; title = base.title; story = base.story;
+            if (consecutiveWins >= 3) {
+                consecutiveWins = 0; collection["win_album"] = 1;
+                paw.style.display = 'block'; url = "win_album.html";
+                story += `<br><br><span class="story-narrative" style="color:var(--accent); font-weight:bold;">🐾 連勝三場！相簿權限已解鎖。</span>`;
             }
-            handleFlip(cards[p1]); setTimeout(() => handleFlip(cards[p2]), 700);
-        }
-
-        function processEndingSequence(winner) {
-            let reaction = "", state = "", title = "", story = "", url = "";
-            const paw = document.getElementById('cat-paw');
-            const link = document.getElementById('gallery-link');
-            paw.style.display = 'none'; link.classList.add('hidden');
-            localStorage.setItem('qin_last_winner', winner);
-
-            if (winner === 1) {
-                consecutiveWins++; consecutiveLosses = 0; state = "lose"; 
-                reaction = "勝負已分。看來是我低估妳了，妳應得的獎勵。";
-                collection[currentTarget] = 1;
-                const base = ENDING_DATA[currentTarget]; title = base.title; story = base.story;
-                if (consecutiveWins >= 3) {
-                    consecutiveWins = 0; collection["win_album"] = 1;
-                    paw.style.display = 'block'; url = "win_album.html";
-                    story += `<br><br><span class="story-narrative" style="color:var(--accent); font-weight:bold;">🐾 連勝三場！相簿權限已解鎖。</span>`;
-                }
+        } else {
+            consecutiveWins = 0; consecutiveLosses++;
+            collection["lose_round"] = 1;
+            reaction = consecutiveLosses >= 2 ? `連輸 ${consecutiveLosses} 次了...妳真的不擅長這個，還是眼裡只看得到我？` : "看來，妳對我也並非完全了解。";
+            if (consecutiveLosses >= 5) {
+                consecutiveLosses = 0; state = "punish"; collection["punishment"] = 1;
+                reaction = "第五次了...妳真的是故意的，對吧？";
+                const data = ENDING_DATA["punishment"]; title = data.title; story = data.story; url = data.url;
             } else {
-                consecutiveWins = 0; consecutiveLosses++;
-                collection["lose_round"] = 1; // 解鎖敗北結局
-                if (consecutiveLosses >= 5) {
-                    consecutiveLosses = 0; state = "punish"; collection["punishment"] = 1;
-                    reaction = "第五次了...妳真的是故意的，對吧？";
-                    const data = ENDING_DATA["punishment"]; title = data.title; story = data.story; url = data.url;
-                } else {
-                    state = "win"; reaction = "看來，妳對我也並非完全了解。想贏過我，還早了點。";
-                    const data = ENDING_DATA["lose_round"]; title = data.title; story = data.story; url = data.url;
-                }
+                state = "win";
+                const data = ENDING_DATA["lose_round"]; title = data.title; story = data.story; url = data.url;
             }
-
-            localStorage.setItem('qin_collection_v2', JSON.stringify(collection));
-            updateCollectionUI();
-            localStorage.setItem('qin_consecutive_losses', consecutiveLosses);
-            localStorage.setItem('qin_consecutive_wins', consecutiveWins);
-            setQinState(state, reaction);
-
-            setTimeout(() => {
-                document.getElementById('end-title').innerText = title;
-                document.getElementById('end-desc').innerHTML = story;
-                document.getElementById('status-counts').innerText = `連勝: ${consecutiveWins} / 連敗: ${consecutiveLosses}`;
-                if (url) { link.classList.remove('hidden'); link.href = url; }
-                document.getElementById('end-screen').style.display = 'flex';
-            }, 2500);
         }
+        localStorage.setItem('qin_collection_v2', JSON.stringify(collection));
+        updateCollectionUI();
+        localStorage.setItem('qin_consecutive_losses', consecutiveLosses);
+        localStorage.setItem('qin_consecutive_wins', consecutiveWins);
+        setQinState(state, reaction);
+        setTimeout(() => {
+            document.getElementById('end-title').innerText = title;
+            document.getElementById('end-desc').innerHTML = story;
+            document.getElementById('status-counts').innerText = `連勝: ${consecutiveWins} / 連敗: ${consecutiveLosses}`;
+            if (url) { link.classList.remove('hidden'); link.href = url; }
+            document.getElementById('end-screen').style.display = 'flex';
+            checkFullCollection(); 
+        }, 2500);
+    }
 
-        function updateTurnUI() {
-            document.getElementById('p1-badge').classList.toggle('active', currentPlayer === 1);
-            document.getElementById('qin-badge').classList.toggle('active', currentPlayer === 2);
-        }
+    function updateTurnUI() {
+        document.getElementById('p1-badge').classList.toggle('active', currentPlayer === 1);
+        document.getElementById('qin-badge').classList.toggle('active', currentPlayer === 2);
+    }
 
-        function setQinState(key, msg = null) {
-            const data = QIN_EXPRESSIONS[key];
-            const img = document.getElementById('qin-img');
-            img.style.opacity = 0;
-            setTimeout(() => { img.src = data.img; document.getElementById('qin-text').innerText = msg || data.msg; img.style.opacity = 1; }, 200);
-        }
-    </script>
+    function setQinState(key, msg = null) {
+        const data = QIN_EXPRESSIONS[key];
+        const img = document.getElementById('qin-img');
+        if(!img) return;
+        img.style.opacity = 0;
+        setTimeout(() => { img.src = data.img; document.getElementById('qin-text').innerText = msg || data.msg; img.style.opacity = 1; }, 200);
+    }
+</script>
 </body>
 </html>
