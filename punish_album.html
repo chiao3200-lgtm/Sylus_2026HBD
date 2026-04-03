@@ -99,10 +99,10 @@
 
     <div id="scene-container" onclick="nextBeat()">
         <div class="dialogue-wrapper">
-            <div class="dialogue-box" onclick="event.stopPropagation()">
+            <div class="dialogue-box" onclick="dialogue-box">
                 <div class="name-tag">秦徹</div>
                 
-                <div class="box-controls">
+                <div class="box-controls" onclick="event.stopPropagation()">
                     <button class="ctrl-btn" onclick="toggleMenu(true)">選單</button>
                     <button class="ctrl-btn" onclick="toggleExit(true)">離開</button>
                 </div>
