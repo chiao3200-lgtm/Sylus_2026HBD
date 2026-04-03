@@ -49,7 +49,7 @@
             .main-container { flex-direction: column; padding: 10px; overflow-y: auto; justify-content: flex-start; }
             .qin-section { width: 100% !important; flex-direction: row !important; max-height: 150px; margin-bottom: 5px; }
             .qin-portrait-frame { width: 100px !important; height: 140px !important; flex-shrink: 0; }
-            .qin-dialogue { margin-top: 0 !important; flex: 1; font-size: 0.85rem !important; min-height: 65px !important; overflow-y: auto; }
+            .qin-dialogue { margin-top: 0 !important; flex: 1; font-size: 0.8rem !important; min-height: 65px !important; overflow-y: auto; }
             .grid { 
                 grid-template-columns: repeat(4, clamp(65px, 18vw, 85px)) !important;
                 grid-template-rows: repeat(3, clamp(85px, 22vh, 115px)) !important;
@@ -104,9 +104,8 @@
         /* --- 遊戲棋盤與 UI --- */
         .game-section { flex: 1; display: flex; flex-direction: column; align-items: center; width: 100%; }
         .status-bar { width: 100%; max-width: 500px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .player-badge { font-size: 0.9rem; padding: 8px 12px; opacity: 0.2; transition: 0.4s; font-weight: bold; border-bottom: 2px solid transparent; }
+        .player-badge { font-size: 0.9rem; padding: 8px 12px; opacity: 0.2; transition: 0.4s; font-weight: bold; }
         .player-badge.active { opacity: 1; border-bottom: white 2px solid; }
-
         .target-card { background: #000; border: 2px solid var(--accent); padding: 10px; text-align: center; border-radius: 12px; box-shadow: 0 0 15px rgba(255, 211, 42, 0.3); width: 110px; animation: pulse 2s infinite; }
         .target-icon { width: 60px; height: 60px; object-fit: contain; }
         .target-label { font-size: 0.65rem; color: var(--accent); margin-top: 5px; font-weight: bold; }
@@ -120,7 +119,7 @@
         .card-front { background: #fff; transform: rotateY(180deg); border: 2px solid #fff; }
         .card-front img { width: 85%; height: 85%; object-fit: contain; }
 
-        /* --- 結局彈窗 --- */
+        /* --- 彈窗 --- */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.92); display: none; align-items: center; justify-content: center; z-index: 2000; padding: 20px; }
         .modal-window { background: linear-gradient(145deg, #111 0%, #050508 100%); padding: 30px; border-top: 4px solid var(--qin-color); text-align: center; width: 100%; max-width: 450px; box-shadow: 0 15px 60px rgba(0,0,0,1); }
         .modal-window.punish { border-color: var(--punish-color); box-shadow: 0 0 40px var(--punish-color); }
@@ -140,11 +139,12 @@
         
         .hidden { display: none !important; }
         .visible { display: flex !important; }
+        .name-input { width: 100%; padding: 12px; margin: 15px 0; background: #1a1a1a; border: 1px solid #444; color: white; text-align: center; font-size: 1rem; }
     </style>
 </head>
 <body>
 
-    <!-- 初始設定 (由首頁控制) -->
+    <!-- 初始設定 (由首頁控制，此處為備用) -->
     <div id="setup-screen" class="modal-overlay">
         <div class="modal-window">
             <h2 style="color: var(--accent); letter-spacing: 4px;">載入中</h2>
@@ -164,7 +164,6 @@
     </div>
 
     <div class="main-container">
-        <!-- 秦徹區域 -->
         <div class="qin-section">
             <div class="qin-portrait-frame">
                 <img id="qin-img" class="qin-image" src="" alt="">
@@ -175,7 +174,6 @@
             </div>
         </div>
 
-        <!-- 遊戲區域 -->
         <div class="game-section">
             <div class="status-bar">
                 <div id="p1-badge" class="player-badge active">小狸花</div>
@@ -218,6 +216,7 @@
             "槍": { title: "結局：火力升級", story: `<span class="story-narrative">獲得了 N109 最新型號的手槍。秦徹優雅地靠在椅背上：</span><span class="sylus-quote">『挺適合妳，把它收好，下次見面時別對準我。』</span>` },
             "紅酒": { title: "結局：勝利的慶典", story: `<span class="story-narrative">秦徹開啟瓶塞，液體注入杯中。他舉杯致意：</span><span class="sylus-quote">『這是一支年份極佳的收藏。為妳的勝利乾杯。』</span>` },
             "寶石": { title: "結局：璀璨之物", story: `<span class="story-narrative">妳拿到了寶石。秦徹願賭服輸，緩緩將這枚象徵勝利的物品推向妳：</span><span class="sylus-quote">『妳跟梅菲斯特一樣對這些發光的東西情有獨鍾。拿去吧。』</span>` },
+            "lose_album": { title: "結局 B：小貓的懲罰", story: `<span class="story-narrative">最後一張落入秦徹手中。他笑得危險：</span><span class="sylus-quote">『太慢了。從現在起的一整天，妳只能回答我：『喵』。』</span>`, url: "lose_album.html" },
             "win_album": { title: "結局 A：贏得博弈", story: `<span class="story-narrative">連續三場博弈的勝利...這是妳應得的。</span><span class="sylus-quote">『不錯。既然妳贏了，這份回憶就歸妳了。』</span>`, url: "win_album.html" },
             "punishment": { title: "結局 C：懲罰遊戲", story: `<span class="story-narrative">連輸五次...妳是故意的嗎？</span><span class="sylus-quote">『既然腦袋記不住，那就用身體來記。我想，妳已經做好覺悟了吧？』</span>`, url: "punish_album.html" }
         };
@@ -228,7 +227,7 @@
         let consecutiveLosses = parseInt(localStorage.getItem('qin_consecutive_losses')) || 0;
         let collection = JSON.parse(localStorage.getItem('qin_collection_v2')) || {};
 
-        // --- 核心初始化 ---
+        // --- 初始化系統 ---
         window.addEventListener('DOMContentLoaded', async () => {
             const savedName = localStorage.getItem('qin_player_name');
             playerName = savedName || "小狸花";
@@ -256,6 +255,7 @@
                 { id: "槍", icon: CARD_TYPES["槍"], label: "火力升級" },
                 { id: "紅酒", icon: CARD_TYPES["紅酒"], label: "勝利慶典" },
                 { id: "寶石", icon: CARD_TYPES["寶石"], label: "璀璨之物" },
+                { id: "lose_album", icon: "🐈", label: "小貓懲罰", isText: true, hasUrl: true },
                 { id: "win_album", icon: "🐾", label: "連勝相簿", isText: true, hasUrl: true },
                 { id: "punishment", icon: "⛓️", label: "懲罰遊戲", isText: true, hasUrl: true }
             ];
@@ -268,7 +268,6 @@
                 if(collection[item.id]) div.onclick = () => viewRecollection(item.id, item.hasUrl);
                 bar.appendChild(div);
             });
-            // 這裡不自動觸發成就，改由關閉一般結局後觸發
         }
 
         function viewRecollection(id, showLink) {
@@ -286,7 +285,7 @@
         }
 
         function checkFullCollection() {
-            const totalRequired = 8;
+            const totalRequired = 9; // 6種卡牌 + 3個特殊結局
             const currentUnlocked = Object.keys(collection).length;
             if (currentUnlocked === totalRequired && !localStorage.getItem('qin_trophy_shown')) {
                 setTimeout(() => {
@@ -310,7 +309,7 @@
             document.getElementById('modal-close-btn').onclick = startNewRound;
             document.getElementById('end-window').classList.remove('complete');
 
-            // 目標判定：未收集優先
+            // 優先判定未收集目標
             if (targetPool.length === 0) targetPool = Object.keys(CARD_TYPES);
             let uncollected = targetPool.filter(id => !collection[id]);
             if (uncollected.length > 0) {
@@ -341,7 +340,7 @@
             flippedCards = []; qinMemory = {};
             if (currentPlayer === 2) {
                 isLocked = true; updateTurnUI();
-                setQinState("thinking", isFirstStart ? "小貓玩小貓牌?有趣。" : "勝局由贏家掌控，這局由我先行。");
+                setQinState("thinking", isFirstStart ? "小貓玩小貓牌?有趣。" : "這局由我先行。");
                 setTimeout(qinAIAction, 1500);
             } else {
                 isLocked = false; updateTurnUI();
@@ -360,8 +359,7 @@
             const [c1, c2] = flippedCards;
             if (c1.dataset.type === c2.dataset.type) {
                 if (c1.dataset.type === currentTarget) { processEndingSequence(currentPlayer); return; }
-                const msg = (currentPlayer === 1) ? "連擊！再翻一次。" : "手感不錯，我繼續。";
-                setQinState(currentPlayer === 2 ? "match" : "normal", msg);
+                setQinState(currentPlayer === 2 ? "match" : "normal", "連擊中。");
                 flippedCards = [];
                 if (currentPlayer === 2) { setTimeout(qinAIAction, 800); } else { isLocked = false; }
             } else {
@@ -422,8 +420,9 @@
                     consecutiveLosses = 0; state = "punish"; collection["punishment"] = 1;
                     const data = ENDING_DATA["punishment"]; title = data.title; story = data.story; url = data.url;
                 } else {
-                    state = "win"; title = "小貓的懲罰"; url = "lose_album.html";
-                    story = `<span class="story-narrative">最後一張落入秦徹手中。</span><span class="sylus-quote">『從現在起的一整天，妳只能回答我：『喵』。』</span>`;
+                    state = "win"; reaction = "掌控之中。";
+                    collection["lose_album"] = 1; // 解鎖普通失敗圖鑑
+                    const data = ENDING_DATA["lose_album"]; title = data.title; story = data.story; url = data.url;
                 }
             }
             
@@ -439,7 +438,6 @@
                 document.getElementById('status-counts').innerText = `連勝: ${consecutiveWins} / 連敗: ${consecutiveLosses}`;
                 if (url) { link.classList.remove('hidden'); link.href = url; }
                 document.getElementById('end-screen').style.display = 'flex';
-                // 修正「繼續博弈」按鈕的點擊事件，讓它在關閉結局後執行 checkFullCollection
                 document.getElementById('modal-close-btn').onclick = () => {
                     document.getElementById('end-screen').style.display = 'none';
                     checkFullCollection();
