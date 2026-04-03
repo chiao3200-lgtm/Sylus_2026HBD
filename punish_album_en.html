@@ -5,56 +5,87 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Recollection: Punishment Game</title>
     <style>
-        :root { --qin-red: #ff3333; --bg-dark: #050505; --glass: rgba(0, 0, 0, 0.8); --border: rgba(255, 255, 255, 0.1); }
+        :root {
+            --qin-red: #ff3333;
+            --bg-dark: #050505;
+            --glass: rgba(0, 0, 0, 0.8);
+            --border: rgba(255, 255, 255, 0.1);
+        }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background-color: var(--bg-dark); color: #fff; font-family: "Segoe UI", Tahoma, sans-serif; overflow: hidden; }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background-color: var(--bg-dark); color: #fff; font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif; overflow: hidden; }
+        
+        /* --- Background Scene --- */
         #scene-container { position: relative; width: 100%; height: 100%; background-size: cover; background-position: center; transition: background-image 1s ease-in-out; cursor: pointer; }
         #scene-container::after { content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to bottom, transparent 40%, rgba(0,0,0,0.9) 100%); pointer-events: none; }
+        
+        /* --- Dialogue System --- */
         .dialogue-wrapper { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); width: 92%; max-width: 850px; z-index: 100; }
         .dialogue-box { background: var(--glass); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); border: 1px solid var(--border); border-left: 5px solid var(--qin-red); padding: 30px 40px; min-height: 140px; position: relative; border-radius: 4px; }
         .name-tag { position: absolute; top: -16px; left: 25px; background: var(--qin-red); color: white; padding: 2px 20px; font-weight: bold; letter-spacing: 2px; font-size: 0.9rem; box-shadow: 3px 3px 0px #000; }
-        .text-content { font-size: 1.15rem; line-height: 1.7; color: #ddd; }
+        .text-content { font-size: 1.15rem; line-height: 1.7; letter-spacing: 0.5px; color: #ddd; }
+        
+        /* --- Function Buttons --- */
         .box-controls { position: absolute; top: 10px; right: 15px; display: flex; gap: 10px; }
         .ctrl-btn { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #aaa; font-size: 0.75rem; padding: 4px 12px; cursor: pointer; transition: 0.3s; }
         .ctrl-btn:hover { background: var(--qin-red); color: white; }
         .click-hint { position: absolute; bottom: 15px; right: 20px; font-size: 0.75rem; color: var(--qin-red); opacity: 0.8; }
+
+        /* --- Modal Styles --- */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.92); z-index: 1000; display: none; justify-content: center; align-items: center; }
         .modal-content { background: #111; padding: 35px; border-top: 3px solid var(--qin-red); text-align: center; width: 340px; box-shadow: 0 20px 50px rgba(0,0,0,0.8); }
-        .m-btn { flex: 1; padding: 12px; cursor: pointer; font-weight: bold; border: 1px solid #444; background: transparent; color: #fff; text-decoration: none; display: inline-block; }
+        .modal-btns { display: flex; gap: 15px; margin-top: 30px; }
+        .m-btn { flex: 1; padding: 12px; cursor: pointer; font-weight: bold; border: 1px solid #444; background: transparent; color: #fff; text-decoration: none; display: inline-block; font-size: 0.9rem; }
         .m-btn.confirm { background: var(--qin-red); border-color: var(--qin-red); }
+
+        /* --- Staff List --- */
         .credits-list { text-align: left; margin: 25px 0; }
         .credits-item { margin-bottom: 20px; border-bottom: 1px solid #222; padding-bottom: 8px; }
-        .credits-label { color: var(--qin-red); font-size: 0.7rem; font-weight: bold; display: block; letter-spacing: 1px; text-transform: uppercase; }
-        .credits-name { color: #fff; font-size: 0.9rem; display: flex; flex-direction: column; gap: 4px; }
-        .social-link { color: #70a1ff; text-decoration: none; font-size: 0.8rem; }
-        #history-menu { position: fixed; top: 0; right: -320px; width: 300px; height: 100%; background: rgba(10, 5, 5, 0.98); z-index: 500; padding: 60px 30px; transition: 0.4s; border-left: 1px solid var(--qin-red); }
+        .credits-label { color: var(--qin-red); font-size: 0.7rem; font-weight: bold; display: block; letter-spacing: 1px; margin-bottom: 4px; text-transform: uppercase; }
+        .credits-name { color: #fff; font-size: 0.95rem; display: flex; flex-direction: column; gap: 4px; }
+        .social-link { color: #70a1ff; text-decoration: none; font-size: 0.85rem; transition: 0.3s; }
+        .social-link:hover { color: #fff; text-decoration: underline; }
+
+        /* --- Sidebar Menu --- */
+        #history-menu { position: fixed; top: 0; right: -320px; width: 300px; height: 100%; background: rgba(10, 5, 5, 0.98); z-index: 500; padding: 60px 30px; transition: 0.4s cubic-bezier(0.16, 1, 0.3, 1); border-left: 1px solid var(--qin-red); }
         #history-menu.active { right: 0; }
         .menu-item { padding: 18px 10px; border-bottom: 1px solid #222; cursor: pointer; color: #777; font-size: 0.9rem; }
+        .menu-item:hover, .menu-item.active { color: var(--qin-red); border-bottom-color: var(--qin-red); }
+        
         @media (max-width: 600px) { .dialogue-box { padding: 25px 20px; min-height: 120px; } .text-content { font-size: 1rem; } .box-controls { top: -40px; right: 0; } }
     </style>
 </head>
 <body>
+
+    <!-- Exit Confirmation -->
     <div id="exit-modal" class="modal-overlay">
         <div class="modal-content">
-            <h3>End Recollection</h3>
-            <p style="color: #888; font-size: 0.85rem;">Are you sure you want to leave this memory?</p>
-            <div class="modal-btns" style="display:flex; gap:15px; margin-top:30px;">
+            <h3 style="margin-top:0;">End Recollection</h3>
+            <p style="color: #888; font-size: 0.85rem;">Are you sure you want to return to the duel?</p>
+            <div class="modal-btns">
                 <button class="m-btn" onclick="toggleExit(false)">Cancel</button>
-                <button class="m-btn confirm" onclick="location.href='index.html'">Confirm</button>
+                <button class="m-btn confirm" onclick="location.href='game_en.html'">Confirm</button>
             </div>
         </div>
     </div>
+
+    <!-- STAFF LIST -->
     <div id="credits-modal" class="modal-overlay">
         <div class="modal-content">
             <h3 style="letter-spacing: 5px; color: var(--qin-red); margin-top:0;">STAFF</h3>
             <div class="credits-list">
                 <div class="credits-item">
                     <span class="credits-label">Artist</span>
-                    <div class="credits-name"><span>子葉</span><a href="https://x.com/aunliuyez" target="_blank" class="social-link">@aunliuyez</a></div>
+                    <div class="credits-name">
+                        <span>子葉</span>
+                        <a href="https://x.com/aunliuyez" target="_blank" class="social-link">@aunliuyez</a>
+                    </div>
                 </div>
                 <div class="credits-item">
                     <span class="credits-label">Web Design</span>
-                    <div class="credits-name"><span>蒼斐</span><a href="https://x.com/TsangFeiLAD" target="_blank" class="social-link">@TsangFeiLAD</a></div>
+                    <div class="credits-name">
+                        <span>蒼斐</span>
+                        <a href="https://x.com/TsangFeiLAD" target="_blank" class="social-link">@TsangFeiLAD</a>
+                    </div>
                 </div>
                 <div class="credits-item">
                     <span class="credits-label">Software</span>
@@ -64,58 +95,29 @@
             <button class="m-btn confirm" style="width:100%;" onclick="closeCredits()">Finish</button>
         </div>
     </div>
+
     <div id="scene-container" onclick="nextBeat()">
         <div class="dialogue-wrapper">
             <div class="dialogue-box" onclick="event.stopPropagation()">
                 <div class="name-tag">Sylus</div>
-                <div class="box-controls"><button class="ctrl-btn" onclick="toggleMenu(true)">Menu</button><button class="ctrl-btn" onclick="toggleExit(true)">Exit</button></div>
+                
+                <div class="box-controls">
+                    <button class="ctrl-btn" onclick="toggleMenu(true)">Menu</button>
+                    <button class="ctrl-btn" onclick="toggleExit(true)">Exit</button>
+                </div>
+
                 <div class="text-content" id="dialogue-text">...</div>
+                
                 <div class="click-hint">TAP TO CONTINUE ▶</div>
             </div>
         </div>
     </div>
+    
     <div id="history-menu">
-        <h2 style="color:var(--qin-red); font-size: 1.2rem; margin-bottom:30px;">PUNISH MOMENTS</h2>
+        <h2 style="color:var(--qin-red); font-size: 1.2rem; margin-bottom:30px; letter-spacing: 5px;">MOMENTS</h2>
         <div id="menu-list"></div>
-        <button onclick="toggleMenu(false)" style="margin-top:40px; background:none; border:1px solid #444; color:#666; cursor:pointer; width:100%; padding:10px;">CLOSE</button>
+        <button onclick="location.href='game_en.html'" style="margin-top:20px; background:rgba(255,255,255,0.05); border:1px solid var(--qin-red); color:var(--qin-red); cursor:pointer; width:100%; padding:10px; font-weight:bold; letter-spacing:1px;">RETURN TO DUEL</button>
+        <button onclick="toggleMenu(false)" style="margin-top:10px; background:none; border:1px solid #444; color:#666; cursor:pointer; width:100%; padding:10px; font-size: 0.7rem;">CLOSE MENU</button>
     </div>
-    <script>
-        const playerName = localStorage.getItem('qin_player_name') || "Kitten";
-        const storyBeat = [
-            { img: "https://via.placeholder.com/1200x1800?text=Punish_1", text: `Since your head can't remember, let's use your body instead. I assume you're prepared, ${playerName}?` },
-            { img: "https://via.placeholder.com/1200x1800?text=Punish_2", text: "Trembling so much? Where did all that courage from the duel go... Come here." },
-            { img: "https://via.placeholder.com/1200x1800?text=Punish_3", text: "Look into my eyes. I want you to remember exactly what happens to losers in N109." },
-            { img: "https://via.placeholder.com/1200x1800?text=Punish_4", text: "Can't handle even this? The game... is only just beginning." },
-            { img: "https://via.placeholder.com/1200x1800?text=Punish_5", text: "Good. Remember this feeling. Next time you lose, the punishment won't be this simple." },
-            { img: "https://via.placeholder.com/1200x1800?text=Punish_6", text: "Tonight, you're staying here. Take your time to compensate me for the time you wasted." }
-        ];
-        let curIdx = 0;
-        const scene = document.getElementById('scene-container'), textEl = document.getElementById('dialogue-text'), menuList = document.getElementById('menu-list');
-        function initStory() {
-            updateScene();
-            storyBeat.forEach((beat, i) => {
-                const item = document.createElement('div');
-                item.className = 'menu-item'; item.innerText = `Moment ${(i+1).toString().padStart(2, '0')}`;
-                item.onclick = (e) => { e.stopPropagation(); jumpToBeat(i); };
-                menuList.appendChild(item);
-            });
-        }
-        function updateScene() {
-            const beat = storyBeat[curIdx];
-            scene.style.backgroundImage = `url('${beat.img}')`;
-            textEl.style.transition = 'none'; textEl.style.opacity = 0;
-            setTimeout(() => { textEl.innerText = beat.text; textEl.style.transition = 'all 0.5s ease-out'; textEl.style.opacity = 1; }, 50);
-            document.querySelectorAll('.menu-item').forEach((item, i) => item.classList.toggle('active', i === curIdx));
-        }
-        function nextBeat() {
-            if (curIdx < storyBeat.length - 1) { curIdx++; updateScene(); } 
-            else { document.getElementById('credits-modal').style.display = 'flex'; }
-        }
-        function closeCredits() { document.getElementById('credits-modal').style.display = 'none'; toggleExit(true); }
-        function jumpToBeat(i) { curIdx = i; updateScene(); toggleMenu(false); }
-        function toggleMenu(s) { document.getElementById('history-menu').classList.toggle('active', s); }
-        function toggleExit(s) { document.getElementById('exit-modal').style.display = s ? 'flex' : 'none'; }
-        initStory();
-    </script>
-</body>
-</html>
+
+    <scrip
