@@ -44,15 +44,15 @@
 </head>
 <body>
     <div id="exit-modal" class="modal-overlay">
-        <div class="modal-content">
-            <h3>結束回顧</h3>
-            <p style="color: #888; font-size: 0.85rem;">確定要離開這段驚喜的回憶嗎？</p>
-            <div class="modal-btns">
-                <button class="m-btn" onclick="toggleExit(false)">取消</button>
-                <button class="m-btn confirm" onclick="location.href='index.html'">確定</button>
-            </div>
+    <div class="modal-content">
+        <h3 style="margin-top:0;">結束回顧</h3>
+        <p style="color: #888; font-size: 0.85rem;">確定要回到博弈現場嗎？</p>
+        <div class="modal-btns">
+            <button class="m-btn" onclick="toggleExit(false)">取消</button>
+            <button class="m-btn confirm" onclick="location.href='game.html'">確定</button>
         </div>
     </div>
+</div>
     <div id="credits-modal" class="modal-overlay">
         <div class="modal-content">
             <h3 style="letter-spacing: 5px; color: var(--qin-red); margin-top:0;">STAFF</h3>
@@ -86,11 +86,12 @@
             </div>
         </div>
     </div>
-    <div id="history-menu">
-        <h2 style="color:var(--qin-red); font-size: 1.2rem; margin-bottom:30px;">BIRTHDAY SPECIAL</h2>
-        <div id="menu-list"></div>
-        <button onclick="toggleMenu(false)" style="margin-top:40px; background:none; border:1px solid #444; color:#666; cursor:pointer; width:100%; padding:10px;">CLOSE</button>
-    </div>
+   <div id="history-menu">
+    <h2 style="color:var(--qin-red); font-size: 1.2rem; margin-bottom:30px;">PUNISH MOMENTS</h2>
+    <div id="menu-list"></div>
+    <button onclick="location.href='game.html'" style="margin-top:20px; background:rgba(255,255,255,0.05); border:1px solid var(--qin-red); color:var(--qin-red); cursor:pointer; width:100%; padding:10px; font-weight:bold;">RETURN TO DUEL</button>
+    <button onclick="toggleMenu(false)" style="margin-top:10px; background:none; border:1px solid #444; color:#666; cursor:pointer; width:100%; padding:10px; font-size: 0.7rem;">CLOSE MENU</button>
+</div>
     <script>
         const playerName = localStorage.getItem('qin_player_name') || "小狸花";
         const storyBeat = [
