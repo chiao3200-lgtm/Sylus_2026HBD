@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>決戰勝利之巔 | THE PEAK OF VICTORY</title>
+    <title>暗夜迴響：與秦徹的獨家賭局 | An Exclusive Gamble with Sylus</title>
     <style>
         :root {
             --accent: #ffd32a;
@@ -72,8 +72,8 @@
 
     <section class="hero-section">
         <div class="content-wrapper">
-            <h1>決戰勝利之巔</h1>
-            <div class="subtitle">THE PEAK OF VICTORY</div>
+            <h1>暗夜迴響</h1>
+            <div class="subtitle">An Exclusive Gamble with Sylus</div>
 
             <div class="rules-container">
                 <strong>遊戲規則 / GAME RULES</strong>
@@ -84,15 +84,12 @@
                 <div class="rule-item"><span class="zh-text">特定卡牌可解鎖專屬對話與神祕相簿</span><span class="en-text">Specific cards unlock unique stories and secret albums</span></div>
             </div>
 
-            <!-- 名字輸入 -->
-            <div class="input-group">
-                <input type="text" id="p-name-input" class="name-input" placeholder="請輸入妳的名字 (預設: 小狸花)" maxlength="8">
-            </div>
+            
 
             <!-- 入口按鈕 -->
             <div class="btn-container">
                 <div class="lang-btn" onclick="goToGame('game.html')">
-                    <span>進入博弈</span>
+                    <span>進入遊戲</span>
                     <span class="btn-label-en">Traditional Chinese</span>
                 </div>
                 <div class="lang-btn" onclick="goToGame('game_en.html')">
@@ -105,15 +102,7 @@
 
     <script>
         function goToGame(targetUrl) {
-            const nameInput = document.getElementById('p-name-input');
-            let playerName = nameInput.value.trim();
-            
-            // 如果沒輸入，設定預設名
-            if (!playerName) playerName = "小狸花";
-            
-            // 儲存名字到 LocalStorage
-            localStorage.setItem('qin_player_name', playerName);
-            
+                    
             // 跳轉頁面
             window.location.href = targetUrl;
         }
