@@ -3,109 +3,325 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>暗夜迴響：與秦徹的獨家賭局 | An Exclusive Gamble with Sylus</title>
+    <title>N109區：進階加密通訊系統</title>
     <style>
         :root {
-            --accent: #ffd32a;
+            --bg: #030305;
             --qin-red: #ff4d4d;
-            --bg-dark: #050508;
-            --glass: rgba(255, 255, 255, 0.06);
-            --glass-border: rgba(255, 255, 255, 0.1);
-            --en-text: #888;
+            --qin-red-dim: rgba(255, 77, 77, 0.2);
+            --accent: #ffd32a;
+            --text: #e0e0e0;
+            --glitch-opacity: 0;
         }
 
-        * { box-sizing: border-box; }
-        body, html { margin: 0; padding: 0; background: var(--bg-dark); color: #fff; font-family: "Segoe UI", "Microsoft JhengHei", sans-serif; width: 100%; height: 100%; overflow-x: hidden; }
-
-        .hero-section {
-            position: relative; min-height: 100vh; width: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 20px;
-            background-image: linear-gradient(rgba(5, 5, 8, 0.65), rgba(5, 5, 8, 0.85)), url('assets/bg_pc.jpg'); 
-            background-size: cover; background-position: center center; background-attachment: fixed;
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        
+        body {
+            background-color: var(--bg); color: var(--text);
+            font-family: "JetBrains Mono", "Courier New", "Microsoft JhengHei", sans-serif;
+            margin: 0; min-height: 100vh;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            overflow: hidden; position: relative;
+            transition: background-color 0.3s;
         }
 
-        @media (max-width: 768px) {
-            .hero-section { background-image: linear-gradient(rgba(5, 5, 8, 0.65), rgba(5, 5, 8, 0.85)), url('assets/bg_mobile.jpg'); background-attachment: scroll; justify-content: flex-start; padding-top: 50px; }
+        /* 全螢幕紅光警報 (V.5) */
+        .emergency-blink { animation: bg-red-blink 1s infinite step-end; }
+        @keyframes bg-red-blink { 50% { background-color: rgba(255, 0, 0, 0.15); } }
+
+        /* 數位雜訊濾鏡 (V.4) */
+        body::before {
+            content: " "; display: block; position: absolute;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.15) 50%), 
+                        linear-gradient(90deg, rgba(255, 0, 0, 0.02), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.02));
+            background-size: 100% 4px, 4px 100%;
+            pointer-events: none; z-index: 100; opacity: 0.7;
         }
 
-        .content-wrapper { z-index: 10; width: 100%; max-width: 850px; display: flex; flex-direction: column; align-items: center; }
-
-        h1 { font-size: clamp(2.2rem, 7vw, 3.5rem); letter-spacing: clamp(4px, 1.5vw, 12px); color: var(--accent); text-shadow: 0 0 30px rgba(255, 211, 42, 0.5); margin: 0; text-indent: clamp(4px, 1.5vw, 12px); animation: tracking-in-expand 1.2s cubic-bezier(0.215, 0.610, 0.355, 1.000) both; }
-        .subtitle { color: var(--en-text); letter-spacing: 5px; font-size: clamp(0.7rem, 1.2vw, 0.9rem); margin-top: 8px; text-transform: uppercase; animation: fadeIn 1s 0.8s forwards; opacity: 0; }
-
-        /* 規則框 */
-        .rules-container {
-            margin: clamp(20px, 3vh, 35px) auto; background: var(--glass); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); border: 1px solid var(--glass-border); border-radius: 12px; opacity: 0; animation: fadeIn 1s 1.2s forwards; box-shadow: 0 20px 50px rgba(0,0,0,0.6); padding: clamp(15px, 3vh, 30px) clamp(20px, 4vw, 40px); width: 100%; display: flex; flex-direction: column; align-items: center;
+        /* 倒數計時器：特效 (V.5) */
+        #timer {
+            font-size: clamp(2.2rem, 12vw, 5rem); font-weight: 900;
+            color: var(--qin-red); font-family: 'Courier New', monospace;
+            text-shadow: 0 0 20px var(--qin-red-dim);
+        }
+        .timer-ghosting { animation: ghost-pulse 1.5s infinite; }
+        @keyframes ghost-pulse { 50% { text-shadow: -5px 0 rgba(255, 77, 77, 0.4), 5px 0 rgba(0, 242, 255, 0.4); } }
+        .timer-jitter { animation: jitter-step 0.15s infinite; }
+        @keyframes jitter-step {
+            0% { transform: translate(0); }
+            25% { transform: translate(2px, -1px); filter: hue-rotate(90deg); }
+            50% { transform: translate(-2px, 1px); }
+            100% { transform: translate(0); }
         }
 
-        .rules-container strong { color: var(--qin-red); display: block; margin-bottom: 20px; font-size: clamp(1rem, 1.5vw, 1.2rem); letter-spacing: 3px; border-bottom: 1px solid rgba(255, 77, 77, 0.2); padding-bottom: 12px; width: 60%; }
-        .rule-item { margin-bottom: 15px; line-height: 1.3; text-align: center; width: 100%; }
-        .rule-item:last-child { margin-bottom: 0; }
-        .zh-text { display: block; font-size: clamp(0.9rem, 1.5vw, 1.05rem); color: #fff; font-weight: 500; margin-bottom: 2px; }
-        .en-text { display: block; font-size: clamp(0.65rem, 1vw, 0.75rem); color: var(--en-text); font-style: italic; letter-spacing: 0.5px; }
-
-        /* --- 名字輸入區 --- */
-        .input-group {
-            opacity: 0; animation: fadeIn 1s 1.4s forwards; margin-bottom: 25px; width: 100%; max-width: 320px;
+        /* 終端機容器 (V.4 設計) */
+        .terminal {
+            width: 92%; max-width: 520px; 
+            background: rgba(8, 8, 12, 0.9);
+            position: relative; backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 4px; z-index: 15;
         }
-        .name-input {
-            width: 100%; padding: 15px; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); color: #fff; text-align: center; font-size: 1rem; border-radius: 4px; transition: 0.3s;
+        .terminal-inner { border: 1px solid rgba(255, 77, 77, 0.15); padding: 30px; position: relative; }
+        #message-box { font-size: 1rem; line-height: 1.8; min-height: 80px; margin-bottom: 25px; color: #bbb; }
+
+        /* 遊戲連結 (V.4) */
+        #game-link {
+            display: none; margin-bottom: 20px; text-align: center;
+            border: 1px dashed var(--qin-red); padding: 12px;
+            background: rgba(255, 77, 77, 0.05);
         }
-        .name-input:focus { outline: none; border-color: var(--accent); background: rgba(255,255,255,0.1); }
 
-        /* 按鈕區 */
-        .btn-container { display: flex; gap: 20px; justify-content: center; opacity: 0; animation: fadeIn 1s 1.6s forwards; width: 100%; }
-        .lang-btn { padding: 15px 35px; border: 1px solid var(--accent); background: transparent; color: var(--accent); text-decoration: none; font-weight: bold; letter-spacing: 2px; transition: all 0.3s; min-width: 240px; border-radius: 4px; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .lang-btn:hover { background: var(--accent); color: #000; box-shadow: 0 0 25px rgba(255, 211, 42, 0.5); transform: translateY(-3px); }
-        .btn-label-en { font-size: 0.55rem; opacity: 0.8; letter-spacing: 1px; margin-top: 4px; text-transform: uppercase; }
-
-        @keyframes tracking-in-expand { 0% { letter-spacing: -0.5em; opacity: 0; } 40% { opacity: 0.6; } 100% { opacity: 1; } }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
-
-        @media (max-width: 600px) {
-            .rules-container { padding: 20px 15px; margin: 20px 5px; }
-            .btn-container { flex-direction: column; align-items: center; gap: 12px; }
-            .lang-btn { width: 100%; max-width: 280px; }
+        .action-btn {
+            background: transparent; border: 1px solid var(--qin-red);
+            color: var(--qin-red); padding: 18px; cursor: pointer;
+            width: 100%; transition: all 0.4s;
+            text-align: center; letter-spacing: 8px; text-transform: uppercase;
         }
+        .action-btn:hover { background: var(--qin-red); color: #000; }
+
+        /* 情報視窗 (V.4 精緻化) */
+        .modal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(2,2,4,0.98); z-index: 10000;
+            display: none; align-items: center; justify-content: center; padding: 20px;
+        }
+        /* 精緻化情報視窗 */
+        .modal-content { 
+            width: 100%; max-width: 460px; 
+            background: linear-gradient(180deg, #0a0a0f 0%, #050508 100%); 
+            border: 1px solid rgba(255, 77, 77, 0.3); 
+            position: relative; padding: 50px 40px 40px; 
+            text-align: center;
+            box-shadow: 0 0 40px rgba(255, 77, 77, 0.1), inset 0 0 20px rgba(0,0,0,0.5);
+            /* 進場動畫 */
+            animation: modal-slide-in 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes modal-slide-in {
+            from { opacity: 0; transform: scaleX(0); filter: brightness(3); }
+            to { opacity: 1; transform: scaleX(1); filter: brightness(1); }
+        }
+
+        /* 增加數位刻度裝飾 */
+        .modal-content::before {
+            content: "DECRYPTING...";
+            position: absolute; top: 10px; left: 15px;
+            font-size: 0.6rem; color: var(--qin-red);
+            letter-spacing: 2px; opacity: 0.6;
+        }
+
+        /* 四角高亮定位點 */
+        .corner-mark {
+            position: absolute; width: 10px; height: 10px;
+            border: 2px solid var(--qin-red);
+        }
+        .cm-tl { top: -2px; left: -2px; border-right: 0; border-bottom: 0; }
+        .cm-tr { top: -2px; right: -2px; border-left: 0; border-bottom: 0; }
+        .cm-bl { bottom: -2px; left: -2px; border-right: 0; border-top: 0; }
+        .cm-br { bottom: -2px; right: -2px; border-left: 0; border-top: 0; }
+        .source-tag-box { 
+            display: inline-block; padding: 4px 20px; 
+            background: var(--qin-red); color: #000; 
+            font-size: 0.75rem; font-weight: 900; 
+            margin-bottom: 25px;
+            transform: skew(-15deg);
+            box-shadow: 4px 4px 0 rgba(255, 77, 77, 0.2);
+        }
+        #modal-text { font-size: 1.1rem; line-height: 1.6; color: #eee; }
+
+        .theme-blood { --qin-red: #ff3333; border-color: #ff3333; }
     </style>
 </head>
-<body>
+<body id="main-body">
 
-    <section class="hero-section">
-        <div class="content-wrapper">
-            <h1>暗夜迴響</h1>
-            <div class="subtitle">An Exclusive Gamble with Sylus</div>
+    <div class="giant-countdown">
+        <div id="timer">00:00:00:00</div>
+    </div>
 
-            <div class="rules-container">
-                <strong>遊戲規則 / GAME RULES</strong>
-                <div class="rule-item"><span class="zh-text">每局隨機決定玩家或秦徹先手</span><span class="en-text">Turn order is randomly decided each round</span></div>
-                <div class="rule-item"><span class="zh-text">指定卡牌不重複出現，共 6 組目標</span><span class="en-text">Targets rotate through 6 unique sets without repetition</span></div>
-                <div class="rule-item"><span class="zh-text">率先湊齊系統指定「目標牌組」即獲勝</span><span class="en-text">First to match the specified "Target" wins the round</span></div>
-                <div class="rule-item"><span class="zh-text">若連續輸給秦徹，將觸發「秘密結局」</span><span class="en-text">Losing many times in a row triggers a "Secret End"</span></div>
-                <div class="rule-item"><span class="zh-text">特定卡牌可解鎖專屬對話與神祕相簿</span><span class="en-text">Specific cards unlock unique stories and secret albums</span></div>
+    <div class="terminal">
+        <div class="terminal-inner">
+            <div id="message-box">[系統] 等待連結...偵測到 N109 區內部頻道...</div>
+            <div id="game-link">
+                <a href="Rule.html" style="color: var(--qin-red); text-decoration: none; font-weight: bold; letter-spacing: 2px;">
+                    [ 密鑰解鎖：進入核心 ]
+                </a>
             </div>
-
-            
-
-            <!-- 入口按鈕 -->
-            <div class="btn-container">
-                <div class="lang-btn" onclick="goToGame('game.html')">
-                    <span>進入遊戲</span>
-                    <span class="btn-label-en">Traditional Chinese</span>
-                </div>
-                <div class="lang-btn" onclick="goToGame('game_en.html')">
-                    <span>START DUEL</span>
-                    <span class="btn-label-en">English Version</span>
-                </div>
-            </div>
+            <button class="action-btn" onclick="handleAction()">攔截通訊</button>
         </div>
-    </section>
+    </div>
+
+    <div id="modal" class="modal">
+        <div id="modal-body" class="modal-content">
+            <div class="source-tag-box" id="modal-source">CLASSIFIED</div>
+            <div id="modal-text"></div>
+            <button class="action-btn" style="margin-top:30px" onclick="closeModal()">銷毀情報</button>
+        </div>
+    </div>
 
     <script>
-        function goToGame(targetUrl) {
-                    
-            // 跳轉頁面
-            window.location.href = targetUrl;
+        let TARGET = new Date('2026-04-18T00:00:00'); 
+        let clickTracker = 0; 
+        let nextIntelThreshold = Math.floor(Math.random() * 6) + 5;
+
+        const DB_DIALOGUES = [            
+            { r: "秦徹", t: "『這場牌局的賭注已經押下了，小貓，妳打算拿什麼來換？』", npc: false },
+            { r: "秦徹", t: "『輸了反而更興奮了，我就喜歡你這樣。』", npc: false },
+            { r: "秦徹", t: "『小貓，玩火的時候要小心，別把自己也燒成灰燼。』", npc: false },
+            { r: "秦徹", t: "『...怎麼這麼久沒來暗點，獵人協會又派什麼任務給你了。』", npc: false },
+            { r: "秦徹", t: "『這枚籌碼背後刻著妳的名字，想知道它是什麼時候放進去的嗎？』", npc: false },
+            { r: "秦徹", t: "『在 N109 區，規則由我制定，而妳……是唯一的例外。』", npc: false },
+            { r: "秦徹", t: "『下次迷路時，記得看看天空——梅菲斯特大多時候都在。』", npc: false },
+            { r: "秦徹", t: "『上次的牌局還沒結束，小貓什麼時候要來結束它？』", npc: false },
+            { r: "薛明", t: "『老大最近心情不錯，這反而讓我更害怕了...到底會發生什麼？』", npc: false },
+            { r: "薛明", t: "『暗點的防禦系統今天重新升級了。』", npc: false },
+            { r: "薛明", t: "『老大的領帶應該是妳挑的那條。』", npc: false },
+            { r: "薛明", t: "『老大的槍套裡換了妳選的那把短槍。』", npc: false },
+            { r: "薛明", t: "『剛才路過酒窖，看到老大對著紅酒出神。』", npc: false },
+            { r: "薛影", t: "『我在老大書房發現了一份清單，上面標註了妳的名字。』", npc: false },
+            { r: "薛影", t: "『老大前陣子在射擊場測試新的手槍，設計挺特別的。』", npc: false },
+            { r: "薛影", t: "『暗哨報告說妳進了區界，老大雖然還在開會，但手指敲擊桌面的頻率變快了。』", npc: false },
+            { r: "薛影", t: "『這是別墅的新門禁卡，權限等級：最高。這是老大親自交代的。』", npc: false },
+            { r: "梅菲斯特", t: "『嘎喔！嘎！嘎嘎！』(翻譯：老大說要是妳再不出現，就親自去找你嘎！)", npc: false },
+            { r: "梅菲斯特", t: "『嘎嗚！』(翻譯：老大把那瓶珍藏紅酒拿出來了，就在房間最顯眼的位置。)", npc: false },
+            { r: "梅菲斯特", t: "『嘎嘎！』(翻譯：老大說別墅後院的紅玫瑰開得正好，問妳什麼時候去看。)", npc: false },
+            { r: "梅菲斯特", t: "『嘎喔？嘎嘎！』(翻譯：老大的抽屜裡藏著妳上次弄丟的耳環，嘎！)", npc: false },
+            { r: "梅菲斯特", t: "『嘎——！』(翻譯：訂製的槍套，又要我送來嘎！)", npc: false },
+
+            // --- 環境 NPC (npc: true) ---
+            { r: "暗點小弟", t: "『呼...今天的巡邏任務總算結束了，去喝一杯吧。』", npc: true },
+            { r: "N109居民", t: "『最近街上的黑衣人是不是變多了？感覺要出大事。』", npc: true },
+            { r: "酒吧招待", t: "『聽說秦先生包下了整層頂樓，不知道誰這麼幸運。』", npc: true },
+            { r: "過路人", t: "『快走，前面的巷子好像被封鎖了。』", npc: true },
+            { r: "走私商人", t: "『這批貨得趕快處理掉，最近風聲太緊。』", npc: true },
+            { r: "診所醫生", t: "『這幾天收到的傷員，身上的標記都很眼生啊。』", npc: true },
+            { r: "街頭混混", t: "『切，又是那些暗點的人在威風。』", npc: true },
+            { r: "小報記者", t: "『如果能拍到秦徹的正面照，這輩子就不愁吃穿了。』", npc: true },
+            { r: "餐廳領班", t: "『預約清單上全是大人物，今天的菜色必須完美。』", npc: true },
+            { r: "流浪漢", t: "『大烏鴉在叫了...嘿嘿，紅色的雨要下囉。』", npc: true },
+            { r: "快遞員", t: "『這包裹居然要送到暗點？我手都在抖。』", npc: true },
+            { r: "路邊攤販", t: "『今天的紅玫瑰特別好賣，全是成雙成對的。』", npc: true },
+            { r: "清潔工", t: "『牆上的紅色噴漆怎麼洗都洗不掉。』", npc: true },
+            { r: "賭場荷官", t: "『今晚不接散客，聽說有大老闆要包場對賭。』", npc: true },
+            { r: "花店學徒", t: "『這999朵玫瑰真的要現在送去嗎？』", npc: true },
+            { r: "監控員", t: "『信號出現短暫波動，可能是有外敵入侵。』", npc: true },
+            { r: "保鑣A", t: "『站住！前方是非軍事化區域，請出示許可證。』", npc: true },
+            { r: "通訊員", t: "『頻道 **** 被強制占用了，是老大的私人波段。』", npc: true },
+            { r: "外來者", t: "『這裡的氣氛...我們真的能在這裡活下去?』", npc: true },
+            { r: "匿名路人", t: "『看，夜空中好像有紅色的光在閃。』", npc: true },
+            { r: "黑市商人", t: "『嘿，聽說了嗎？秦先生最近在找一種極其罕見的紫鑽，似乎是為了某人的禮物。』", npc: true },
+            { r: "暗點精英", t: "『全員戒備！今天那位獵人小姐要過來，誰要是敢出差錯，自己去領罰。』", npc: true },
+            { r: "酒保", t: "『秦先生的專屬座位今天放了一支新鮮的紅玫瑰，真是稀奇。』", npc: true },
+            { r: "N109居民", t: "『N109區永遠燈火通明，又是個不眠之夜。』", npc: true },
+            { r: "通訊技術員", t: "『奇怪，頻道 **** 被鎖定了？』", npc: true },
+            { r: "路邊小女孩", t: "『一隻有紅色眼睛大烏鴉給了我一顆糖，它說那是幫漂亮姐姐帶路的謝禮。』", npc: true },
+            { r: "情報販子", t: "『想買秦徹的弱點？你要拿什麼來換?只有錢?去去去!錢在N109只是最低標準。』", npc: true },
+            { r: "巡邏隊員", t: "『老大的心情就像這區的天氣，陰晴不定，全看那位小姐今天來不來。』", npc: true },
+            { r: "高級裁縫", t: "『這件禮服的尺寸是秦先生親自定的，連腰線的弧度都要求得極其精確。』", npc: true },
+            { r: "匿名通訊", t: "『[信號干擾] ……保護好她……這是最高指令。』", npc: true }
+        ];
+
+        const DB_INTELS = [
+            { r: "秦徹", s: "機密截獲", t: "「這場生日賭局，贏的人可以提任何要求。她的靈魂，我也要了。」", th: "theme-blood" },
+            { r: "薛明", s: "副手檔案", t: "「清單顯示：特製絲綢眼罩、精油、黑色手銬。簽名人：秦徹。」", th: "theme-dark" },
+             { r: "薛影", s: "暗哨通報", t: "「我也不知道老大那天他有沒有行程，除非有人不長眼。」", th: "theme-tech" },
+            { r: "梅菲斯特", s: "高空偵查", t: "「發現目標車輛正前往暗點。護航等級：最高級。」", th: "theme-crow" },
+        ];
+
+        // 數位損壞文字特效 (V.5)
+        function scrambleText(el, newText) {
+            const chars = '!<>-_\\/[]{}—=+*^?#________';
+            let frame = 0;
+            const queue = [];
+            for (let i = 0; i < newText.length; i++) {
+            const to = newText[i] || '';
+            const start = Math.floor(Math.random() * 15);
+            const end = start + Math.floor(Math.random() * 15);
+            queue.push({ to, start, end, char: '' });
+            }
+        const update = () => {
+            let output = '', complete = 0;
+            for (let i = 0; i < queue.length; i++) {
+                let { to, start, end, char } = queue[i];
+                if (frame >= end) { complete++; output += to; }
+                else if (frame >= start) {
+                    if (!char || Math.random() < 0.3) {
+                    char = chars[Math.floor(Math.random() * chars.length)];
+                    queue[i].char = char;
+                    }
+                    output += `<span style="color:var(--qin-red)">${char}</span>`;
+                } else { output += ''; }
+                }
+                el.innerHTML = output;
+            if (complete !== queue.length) requestAnimationFrame(update);
+            frame++;
+            };
+        update();
+    }
+
+        function handleAction() {
+            clickTracker++;
+            const msgBox = document.getElementById('message-box');
+            const now = new Date();
+
+            // 當天解鎖邏輯 (V.4)
+            if (new Date() >= TARGET) {
+                document.getElementById('game-link').style.display = 'block';
+            }
+
+            if (clickTracker >= nextIntelThreshold) {
+                const intel = DB_INTELS[Math.floor(Math.random() * DB_INTELS.length)];
+                showModal(intel);
+                clickTracker = 0;
+                nextIntelThreshold = Math.floor(Math.random() * 6) + 5;
+            } else {
+                const pool = DB_DIALOGUES;
+                const d = pool[Math.floor(Math.random() * pool.length)];
+                scrambleText(msgBox, `${d.r}：${d.t}`);
+            }
         }
+
+        function updateTimer() {
+            const timerEl = document.getElementById('timer');
+            const body = document.getElementById('main-body');
+            const diff = TARGET - new Date();
+            
+            if (diff <= 0) {
+                timerEl.innerText = "HAPPY BIRTHDAY SYLUS";
+                timerEl.classList.remove('timer-jitter', 'timer-ghosting');
+                body.classList.remove('emergency-blink');
+                return;
+            }
+
+            // 特效階段
+            if (diff < 259200000) timerEl.classList.add('timer-ghosting'); // 最後3天
+            if (diff < 86400000) { // 最後1天
+                if (Math.random() > 0.8) timerEl.classList.add('timer-jitter');
+                else timerEl.classList.remove('timer-jitter');
+            }
+            if (diff < 10000) body.classList.add('emergency-blink'); // 最後10秒
+
+            const d = Math.floor(diff / 86400000), h = Math.floor((diff / 3600000) % 24),
+                  m = Math.floor((diff / 60000) % 60), s = Math.floor((diff / 1000) % 60);
+            timerEl.innerText = `${String(d).padStart(2,'0')}:${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+}
+
+        setInterval(updateTimer, 1000);
+        updateTimer();
+
+        // 5. Modal 視窗控制
+        function showModal(data) {
+    const modal = document.getElementById('modal');
+    const body = document.getElementById('modal-body');
+    body.className = `modal-content ${data.th || ''}`;
+    document.getElementById('modal-source').innerText = `${data.s || 'CLASSIFIED'} - ${data.r}`;
+    document.getElementById('modal-text').innerText = data.t;
+    modal.style.display = 'flex';
+}
+        function closeModal() { document.getElementById('modal').style.display = 'none'; }
+        
     </script>
 </body>
 </html>

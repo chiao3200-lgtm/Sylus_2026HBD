@@ -5,12 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Recollection: Under Control</title>
     <style>
-        :root { 
-            --qin-red: #ff3333; 
-            --bg-dark: #050505; 
-            --glass: rgba(0, 0, 0, 0.8); 
-            --border: rgba(255, 255, 255, 0.1); 
-        }
+        :root { --qin-red: #ff3333; --bg-dark: #050505; --glass: rgba(0, 0, 0, 0.8); --border: rgba(255, 255, 255, 0.1); }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; background-color: var(--bg-dark); color: #fff; font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif; overflow: hidden; }
         
@@ -24,10 +19,10 @@
         .text-content { font-size: 1.1rem; line-height: 1.6; letter-spacing: 0.5px; color: #ddd; }
         
         .box-controls { position: absolute; top: 10px; right: 15px; display: flex; gap: 10px; }
-        .ctrl-btn { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #aaa; font-size: 0.7rem; padding: 4px 12px; cursor: pointer; transition: 0.3s; text-transform: uppercase; }
+        .ctrl-btn { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #aaa; font-size: 0.75rem; padding: 4px 12px; cursor: pointer; transition: 0.3s; text-transform: uppercase; }
         .ctrl-btn:hover { background: var(--qin-red); color: white; }
         
-        .click-hint { position: absolute; bottom: 15px; right: 20px; font-size: 0.7rem; color: var(--qin-red); opacity: 0.8; font-weight: bold; }
+        .click-hint { position: absolute; bottom: 15px; right: 20px; font-size: 0.75rem; color: var(--qin-red); opacity: 0.8; }
         
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.92); z-index: 1000; display: none; justify-content: center; align-items: center; }
         .modal-content { background: #111; padding: 35px; border-top: 3px solid var(--qin-red); text-align: center; width: 340px; box-shadow: 0 20px 50px rgba(0,0,0,0.8); }
@@ -50,19 +45,19 @@
     </style>
 </head>
 <body>
-    <!-- Exit Confirmation -->
+    <!-- Exit Modal -->
     <div id="exit-modal" class="modal-overlay">
         <div class="modal-content">
-            <h3 style="margin-top:0; color: var(--qin-red);">End Memory</h3>
-            <p style="color: #888; font-size: 0.8rem;">Are you sure you want to return to the duel?</p>
+            <h3 style="margin-top:0;">End Recollection</h3>
+            <p style="color: #888; font-size: 0.85rem;">Are you sure you want to return to the duel?</p>
             <div class="modal-btns" style="display:flex; gap:15px; margin-top:30px;">
                 <button class="m-btn" onclick="toggleExit(false)">CANCEL</button>
-                <button class="m-btn confirm" onclick="location.href='game_en.html'">CONFIRM</button>
+                <button class="m-btn confirm" onclick="location.href='game.html'">CONFIRM</button>
             </div>
         </div>
     </div>
 
-    <!-- Staff Credits -->
+    <!-- Credits Modal -->
     <div id="credits-modal" class="modal-overlay">
         <div class="modal-content">
             <h3 style="letter-spacing: 4px; color: var(--qin-red); margin-top:0;">STAFF</h3>
@@ -80,11 +75,11 @@
                     <span class="credits-name" style="font-size: 0.8rem; color: #888;">Google AI Studio</span>
                 </div>
             </div>
-            <button class="m-btn confirm" style="width:100%;" onclick="closeCredits()">CLOSE</button>
+            <button class="m-btn confirm" style="width:100%;" onclick="closeCredits()">FINISH</button>
         </div>
     </div>
 
-    <!-- Main Scene -->
+    <!-- Scene Container -->
     <div id="scene-container" onclick="nextBeat()">
         <div class="dialogue-wrapper">
             <div class="dialogue-box">
@@ -103,29 +98,25 @@
 
     <!-- History Menu -->
     <div id="history-menu">
-        <h2 style="color:var(--qin-red); font-size: 1.1rem; margin-bottom:30px; letter-spacing: 3px;">LOST RECORD</h2>
+        <h2 style="color:var(--qin-red); font-size: 1.1rem; margin-bottom:30px; letter-spacing: 2px;">LOST RECORD</h2>
         <div id="menu-list"></div>
-        <button onclick="location.href='game.html'" style="margin-top:20px; background:rgba(255,255,255,0.05); border:1px solid var(--qin-red); color:var(--qin-red); cursor:pointer; width:100%; padding:12px; font-weight:bold; letter-spacing: 1px; font-size: 0.75rem;">RETURN TO DUEL</button>
+        <button onclick="location.href='game.html'" style="margin-top:20px; background:rgba(255,255,255,0.05); border:1px solid var(--qin-red); color:var(--qin-red); cursor:pointer; width:100%; padding:10px; font-weight:bold; font-size: 0.75rem;">RETURN TO DUEL</button>
         <button onclick="toggleMenu(false)" style="margin-top:10px; background:none; border:1px solid #444; color:#666; cursor:pointer; width:100%; padding:10px; font-size: 0.65rem;">CLOSE MENU</button>
     </div>
 
     <script>
-        // Get player name or use default
         const playerName = localStorage.getItem('qin_player_name') || "Sweetie";
-
         const storyBeat = [
-            { img: "assets/lose_1.webp", text: "Game over. Since you lost, I trust you haven't forgotten the 'extra stakes' we agreed upon?" },
-            { img: "assets/lose_2.webp", text: "From this moment on, no more words. You're only allowed to 'Meow' in response." },
+            { img: "assets/lose_1.webp", text: "The game is over. A bet is a bet. I trust you haven't forgotten our little 'extra stakes'?" },
+            { img: "assets/lose_2.webp", text: "From this moment on, no more words. Every time you speak, it must be replaced with a 'Meow'." },
             { img: "assets/lose_3.webp", text: "What? Thinking of backing out? Who was it that boasted they couldn't possibly lose?" },
-            { img: "assets/lose_4.webp", text: "Go on, give me one. If I don't hear it, I might have to double the penalty." },
+            { img: "assets/lose_4.webp", text: "Come on, give it a try. If I don't hear it, the penalty doubles." },
             { img: "assets/lose_5.webp", text: "...Heh. You sound much more obedient than usual." },
-            { img: "assets/lose_6.webp", text: `My ${playerName}... I'm truly looking forward to hearing you 'meow' all night.` }
+            { img: "assets/lose_6.webp", text: `My ${playerName}, I'm looking forward to hearing you 'meow' all through the night.` }
         ];
 
         let curIdx = 0;
-        const scene = document.getElementById('scene-container');
-        const textEl = document.getElementById('dialogue-text');
-        const menuList = document.getElementById('menu-list');
+        const scene = document.getElementById('scene-container'), textEl = document.getElementById('dialogue-text'), menuList = document.getElementById('menu-list');
 
         function initStory() {
             updateScene();
@@ -143,8 +134,39 @@
             scene.style.backgroundImage = `url('${beat.img}')`;
             textEl.style.transition = 'none'; 
             textEl.style.opacity = 0;
-            
             setTimeout(() => { 
                 textEl.innerText = beat.text; 
                 textEl.style.transition = 'all 0.5s ease-out'; 
-                textEl.style.opacity 
+                textEl.style.opacity = 1; 
+            }, 50);
+            document.querySelectorAll('.menu-item').forEach((item, i) => item.classList.toggle('active', i === curIdx));
+        }
+
+        function nextBeat() {
+            if (curIdx < storyBeat.length - 1) { curIdx++; updateScene(); } 
+            else { document.getElementById('credits-modal').style.display = 'flex'; }
+        }
+
+        function closeCredits() { 
+            document.getElementById('credits-modal').style.display = 'none'; 
+            toggleExit(true); 
+        }
+
+        function jumpToBeat(i) { 
+            curIdx = i; 
+            updateScene(); 
+            toggleMenu(false); 
+        }
+
+        function toggleMenu(s) { 
+            document.getElementById('history-menu').classList.toggle('active', s); 
+        }
+
+        function toggleExit(s) { 
+            document.getElementById('exit-modal').style.display = s ? 'flex' : 'none'; 
+        }
+
+        initStory();
+    </script>
+</body>
+</html>
