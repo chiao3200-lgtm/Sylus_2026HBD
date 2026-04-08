@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>N109區慶典</title>
     <style>
+        #loading-screen { transition: opacity 0.8s ease, visibility 0.8s; }
+        #loading-screen.fade-out { opacity: 0; visibility: hidden; }
+        .main-container { filter: blur(10px); transition: filter 1s ease; }
+        body.loaded .main-container { filter: blur(0px); }
         :root {
             --bg-color: #050508;
             --card-back-bg: #121218;
@@ -43,10 +47,9 @@
             max-width: 1200px;
             padding: 20px;
             flex: 1;
-            padding-bottom: 60px; /* 預留底部圖鑑空間 */
+            padding-bottom: 60px; 
         }
 
-        /* --- 響應式優化 --- */
         @media (max-width: 900px) {
             .main-container { flex-direction: column; padding: 10px; overflow-y: auto; justify-content: flex-start; padding-bottom: 80px; }
             .qin-section { width: 100% !important; flex-direction: row !important; max-height: 150px; margin-bottom: 5px; }
@@ -59,101 +62,29 @@
             }
         }
 
-        /* --- 收藏圖鑑樣式 (抽屜摺疊式) --- */
-        .collection-outer {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            background: rgba(10, 10, 15, 0.95);
-            backdrop-filter: blur(15px);
-            border-top: 2px solid var(--accent);
-            z-index: 1500;
-            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            /* 預設摺疊狀態：只露出標題部分 */
-            transform: translateY(calc(100% - 40px)); 
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            box-shadow: 0 -10px 30px rgba(0,0,0,0.5);
-        }
-
-        .collection-outer.expanded {
-            transform: translateY(0);
-        }
-
-        .collection-header {
-            width: 100%;
-            height: 40px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            cursor: pointer;
-            background: linear-gradient(to bottom, rgba(255,211,42,0.15), transparent);
-        }
-
-        .collection-title { 
-            font-size: 0.7rem; 
-            color: var(--accent); 
-            letter-spacing: 2px; 
-            text-transform: uppercase; 
-            font-weight: bold;
-            margin: 0;
-        }
-        
-        .collection-title::after {
-            content: ' ▲';
-            font-size: 0.6rem;
-            margin-left: 10px;
-            transition: transform 0.3s;
-            display: inline-block;
-        }
-
-        .collection-outer.expanded .collection-title::after {
-            transform: rotate(180deg);
-        }
-
-        .collection-shelf { 
-            display: flex; 
-            justify-content: center; 
-            gap: 12px; 
-            flex-wrap: wrap; 
-            padding: 20px;
-            max-width: 800px;
-        }
-
-        .collection-item {
-            position: relative; width: 48px; height: 48px;
-            background: #111; border: 1px solid #333;
-            display: flex; align-items: center; justify-content: center;
-            filter: grayscale(1) brightness(0.3); transition: all 0.4s; border-radius: 4px;
-        }
+        .collection-outer { position: fixed; bottom: 0; left: 0; width: 100%; background: rgba(10, 10, 15, 0.95); backdrop-filter: blur(15px); border-top: 2px solid var(--accent); z-index: 1500; transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); transform: translateY(calc(100% - 40px)); display: flex; flex-direction: column; align-items: center; box-shadow: 0 -10px 30px rgba(0,0,0,0.5); }
+        .collection-outer.expanded { transform: translateY(0); }
+        .collection-header { width: 100%; height: 40px; display: flex; justify-content: center; align-items: center; cursor: pointer; background: linear-gradient(to bottom, rgba(255,211,42,0.15), transparent); }
+        .collection-title { font-size: 0.7rem; color: var(--accent); letter-spacing: 2px; text-transform: uppercase; font-weight: bold; margin: 0; }
+        .collection-title::after { content: ' ▲'; font-size: 0.6rem; margin-left: 10px; transition: transform 0.3s; display: inline-block; }
+        .collection-outer.expanded .collection-title::after { transform: rotate(180deg); }
+        .collection-shelf { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; padding: 20px; max-width: 800px; }
+        .collection-item { position: relative; width: 48px; height: 48px; background: #111; border: 1px solid #333; display: flex; align-items: center; justify-content: center; filter: grayscale(1) brightness(0.3); transition: all 0.4s; border-radius: 4px; }
         .collection-item.unlocked { filter: grayscale(0) brightness(1); border-color: rgba(255, 211, 42, 0.5); cursor: pointer; box-shadow: 0 0 5px rgba(255,211,42,0.1); }
         .collection-item.unlocked:hover { transform: scale(1.1); border-color: var(--accent); box-shadow: 0 0 15px var(--accent); }
         .collection-item img { width: 75%; height: 75%; object-fit: contain; pointer-events: none; }
         .collection-item .hint { position: absolute; bottom: 120%; left: 50%; transform: translateX(-50%); background: #000; color: var(--accent); font-size: 9px; padding: 2px 8px; white-space: nowrap; border-radius: 2px; display: none; border: 1px solid var(--accent); z-index: 1000; }
         .collection-item.unlocked:hover .hint { display: block; }
 
-        /* --- 秦徹區域 --- */
         .qin-section { width: 300px; display: flex; flex-direction: column; align-items: center; flex-shrink: 0; }
-        .qin-portrait-frame {
-            width: 280px; height: 420px;
-            background: radial-gradient(circle at center, rgba(255, 77, 77, 0.15) 0%, transparent 70%);
-            border-bottom: 3px solid var(--qin-color);
-            overflow: hidden;
-            display: flex; justify-content: center; align-items: flex-end;
-            position: relative;
-            max-height: 60vh;
-        }
+        .qin-portrait-frame { width: 280px; height: 420px; background: radial-gradient(circle at center, rgba(255, 77, 77, 0.15) 0%, transparent 70%); border-bottom: 3px solid var(--qin-color); overflow: hidden; display: flex; justify-content: center; align-items: flex-end; position: relative; max-height: 60vh; }
         .qin-image { width: 100%; height: 100%; object-fit: contain; transition: opacity 0.6s ease-in-out; animation: qinBreathing 4s ease-in-out infinite; }
         @keyframes qinBreathing { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
         .shake { animation: qinShake 0.5s both; }
         @keyframes qinShake { 10%, 90% { transform: translate3d(-1px, 0, 0); } 20%, 80% { transform: translate3d(2px, 0, 0); } 30%, 50%, 70% { transform: translate3d(-4px, 0, 0); } 40%, 60% { transform: translate3d(4px, 0, 0); } }
-
         .qin-dialogue { margin-top: 12px; background: rgba(255, 255, 255, 0.03); border-left: 4px solid var(--qin-color); padding: 12px; width: 100%; min-height: 85px; font-size: 0.95rem; position: relative; line-height: 1.5; }
         .qin-name-tag { position: absolute; top: -10px; left: 10px; background: var(--qin-color); padding: 1px 8px; font-size: 0.7rem; font-weight: bold; }
 
-        /* --- 遊戲棋盤與 UI --- */
         .game-section { flex: 1; display: flex; flex-direction: column; align-items: center; width: 100%; }
         .status-bar { width: 100%; max-width: 500px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
         .player-badge { font-size: 0.9rem; padding: 8px 12px; opacity: 0.2; transition: 0.4s; font-weight: bold; }
@@ -171,29 +102,33 @@
         .card-front { background: #fff; transform: rotateY(180deg); border: 2px solid #fff; }
         .card-front img { width: 85%; height: 85%; object-fit: contain; }
 
-        /* --- 結局彈窗 --- */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.92); display: none; align-items: center; justify-content: center; z-index: 2000; padding: 20px; }
         .modal-window { background: linear-gradient(145deg, #111 0%, #050508 100%); padding: 30px; border-top: 4px solid var(--qin-color); text-align: center; width: 100%; max-width: 450px; box-shadow: 0 15px 60px rgba(0,0,0,1); }
         .modal-window.punish { border-color: var(--punish-color); box-shadow: 0 0 40px var(--punish-color); }
         .modal-window.complete { border-color: var(--accent); border-top-width: 6px; }
-        
         #end-desc { text-align: left; font-size: 1rem; color: #eee; margin: 20px 0; line-height: 1.8; }
         .sylus-quote { color: #fff; font-weight: bold; border-left: 2px solid var(--qin-color); padding-left: 10px; display: block; margin: 10px 0; }
         .story-narrative { color: var(--narration); font-style: italic; display: block; }
-        
         .cat-paw-container { font-size: 2.5rem; margin: 10px 0; display: none; animation: popIn 0.5s both; }
         @keyframes popIn { from { transform: scale(0); } to { transform: scale(1); } }
-
         .action-btn { background: var(--qin-color); color: white; border: none; padding: 14px 30px; cursor: pointer; font-weight: bold; width: 100%; text-decoration: none; display: inline-block; font-size: 1rem; letter-spacing: 2px; transition: 0.3s; margin-top: 10px; }
         .action-btn:hover { filter: brightness(1.2); }
         .gallery-btn { background: transparent; border: 1px solid var(--accent); color: var(--accent); margin-bottom: 10px; }
         .gallery-btn:hover { background: var(--accent); color: #000; }
-        
         .hidden { display: none !important; }
         .name-input { width: 100%; padding: 12px; margin: 15px 0; background: #1a1a1a; border: 1px solid #444; color: white; text-align: center; font-size: 1rem; }
     </style>
 </head>
+
 <body>
+
+<!-- 載入遮罩 -->
+<div id="loading-screen" style="position:fixed; top:0; left:0; width:100%; height:100%; background: #050508; z-index:9999; display:flex; flex-direction:column; align-items:center; justify-content:center; backdrop-filter: blur(20px);">
+    <p id="loading-text" style="color: var(--qin-red); font-family: monospace; letter-spacing: 3px; font-size: 0.9rem; margin: 0 0 20px 0; text-align: center; width: 100%;">SYSTEM INITIALIZING...</p>
+    <div style="width: 200px; height: 2px; background: #333; position: relative; overflow: hidden;">
+        <div id="loading-bar" style="width: 0%; height: 100%; background: var(--qin-red); transition: width 0.3s;"></div>
+    </div>
+</div>
 
     <!-- 初始設定彈窗 -->
     <div id="setup-screen" class="modal-overlay">
@@ -241,7 +176,6 @@
         </div>
     </div>
 
-    <!-- 修改後的抽屜式圖鑑 -->
     <div class="collection-outer" id="collection-drawer">
         <div class="collection-header" onclick="toggleCollection()">
             <div class="collection-title">RECOLLECTION / 結局圖鑑</div>
@@ -250,7 +184,7 @@
     </div>
 
     <script>
-    // --- 資源與資料庫 ---
+    let qinMatchStreak = 0; 
     const CARD_BACK_IMG = "assets/card_back.jpg"; 
     const QIN_EXPRESSIONS = {
         "normal":   { img: "assets/qin_normal.webp", msg: "準備好了嗎？" },
@@ -269,9 +203,6 @@
     const OPENING_DIALOGUES = [
         "小貓玩牌？有趣。這局妳打算拿什麼來換？",
         "妳準備好送我什麼驚喜了嗎？",
-        "暗網的首領可沒這麼多閒工夫，除非對象是妳。",
-        "生日這天，我更感興趣妳會送我什麼『禮物』。",
-        "別緊張，我會稍微讓著妳一點...或許。",
         "規則很簡單：贏的人，可以對輸的人做任何事。"
     ];
 
@@ -287,11 +218,17 @@
             "專注點，別讓我失望。",
             "慢慢來，看妳糾結也是種樂趣。",
             "如果贏不了我，今晚妳就走不了了。"
+        ],
+        qin_streak: [
+            "連對兩次。看來這局的節奏，由我掌控了。",
+            "第三組。再這樣下去，妳連輸的禮貌都沒了，小貓。",
+            "第四對。妳打算就這樣一直看著我把牌拿走嗎？",
+            "這已經是第五組了...怎麼，看我贏讓妳這麼分神？"
         ]
     };
 
     const ENDING_DATA = {
-        "梅菲斯特": { title: "結局：梅菲斯特的禮物", story: `<span class="story-narrative">妳成功拿到了梅菲斯特。秦徹注視著妳：</span><span class="sylus-quote">『這顆寶石梅菲斯覬覦已久，現在歸妳了。就當作是妳贏得的獎勵。』『嘎嘎！！嘎嘎嘎嘎嘎！』</span>` },
+        "梅菲斯特": { title: "結局：梅菲斯特的禮物", story: `<span class="story-narrative">妳成功拿到了梅菲斯特。秦徹注視著妳：</span><span class="sylus-quote">『這顆寶石梅菲斯覬覦已久，現在歸妳了。就當作是妳贏得的獎勵。』『嘎嘎！！嘎嘎嘎嘎嘎!』</span>` },
         "薛明": { title: "結局：銘謝惠顧", story: `<span class="story-narrative">妳翻開卡牌，裡面掉出一張 薛明 留下的字條：『銘謝惠顧，下次再來。』</span><span class="sylus-quote">『那小子的把戲...不過這局妳確實贏了。』</span>` },
         "薛影": { title: "結局：再來一次", story: `<span class="story-narrative">妳翻開了 薛影 的卡牌，背面凌亂的字跡寫著：『再來一次』。</span><span class="sylus-quote">『既然那傢伙都這麼說了，還要繼續嗎？』</span>` },
         "槍": { title: "結局：火力升級", story: `<span class="story-narrative">獲得了 N109 最新型號的手槍。秦徹優雅地靠在椅背上：</span><span class="sylus-quote">『挺適合妳，把它收好，但別拿它對準我。』</span>` },
@@ -300,64 +237,67 @@
         "lose_round": { title: "結局：失敗的小貓", story: `<span class="story-narrative">最後一張目標落入秦徹手中。他玩味地看著妳：</span><span class="sylus-quote">『看來妳今天的運氣和記性都不夠。現在開始妳得聽我的。』</span>`, url: "lose_album.html" },
         "win_album": { title: "Bouns：終極獲勝獎勵", story: `<span class="story-narrative">連續三場勝利...願賭服輸。</span><span class="sylus-quote">『不錯。既然妳贏了，想做什麼都隨妳，小貓。』</span>`, url: "win_album.html" },
         "punishment": { title: "結局 C：懲罰遊戲", story: `<span class="story-narrative">連輸五次...妳是故意的嗎？</span><span class="sylus-quote">『既然腦袋記不住，那就用身體來記。我想，妳已經做好覺悟了吧？』</span>`, url: "punish_album.html" },
-        "trophy": { 
-            title: "成就：完美收藏家", 
-            get story() { return `<img src="assets/qin_trophy_full.webp" style="width:100%; border-radius:8px; margin-bottom:15px; border:1px solid var(--accent); box-shadow: 0 0 15px rgba(255,211,42,0.3);"><span class="story-narrative">妳已經看透了秦徹所有的底牌。</span><span class="sylus-quote">『竟然收集得這麼齊全...看來妳對我真的很執著，${playerName}。』</span>`; }
-        }
+        "trophy": { title: "成就：完美收藏家", get story() { return `<img src="assets/qin_trophy_full.webp" style="width:100%; border-radius:8px; margin-bottom:15px; border:1px solid var(--accent); box-shadow: 0 0 15px rgba(255,211,42,0.3);"><span class="story-narrative">妳已經看透了秦徹所有的底牌。</span><span class="sylus-quote">『竟然收集得這麼齊全...看來妳對我真的很執著，${playerName}。』</span>`; } }
     };
 
-    // --- 遊戲變數 ---
     let currentTarget = "", playerName = "小狸花", currentPlayer = 1, flippedCards = [], isLocked = true, qinMemory = {};
-    let isFirstTurnOfRound = true; 
     let targetPool = Object.keys(CARD_TYPES);
     let consecutiveWins = parseInt(localStorage.getItem('qin_consecutive_wins')) || 0;
     let consecutiveLosses = parseInt(localStorage.getItem('qin_consecutive_losses')) || 0;
     let collection = JSON.parse(localStorage.getItem('qin_collection_v2')) || {};
 
-    // --- 初始化姓名檢查機制 ---
     window.addEventListener('DOMContentLoaded', async () => {
         const savedName = localStorage.getItem('qin_player_name');
-        const setupScreen = document.getElementById('setup-screen');
-
-        if (savedName && savedName !== "小狸花") {
+        if (savedName) {
             playerName = savedName;
             document.getElementById('p1-badge').innerText = playerName;
-            setupScreen.style.display = 'none';
+            document.getElementById('setup-screen').style.display = 'none';
             await preloadResources();
             startNewRound(true);
         } else {
-            setupScreen.style.display = 'flex';
+            document.getElementById('setup-screen').style.display = 'flex';
         }
     });
 
     async function initGame() {
         const nameInput = document.getElementById('p-name-input');
         const inputVal = nameInput.value.trim();
-        if (inputVal) playerName = inputVal;
-        else playerName = "小狸花";
-        
+        playerName = inputVal || "小狸花";
         localStorage.setItem('qin_player_name', playerName);
         document.getElementById('p1-badge').innerText = playerName;
         document.getElementById('setup-screen').style.display = 'none';
-        
         await preloadResources();
         startNewRound(true);
     }
 
-    function toggleCollection() {
-        document.getElementById('collection-drawer').classList.toggle('expanded');
+    async function preloadResources() {
+        const loadingBar = document.getElementById('loading-bar');
+        const loadingText = document.getElementById('loading-text');
+        const urls = [CARD_BACK_IMG, ...Object.values(QIN_EXPRESSIONS).map(e => e.img), ...Object.values(CARD_TYPES), "assets/qin_trophy_full.webp"];
+        let loadedCount = 0;
+        await Promise.all(urls.map(url => new Promise(resolve => {
+            const img = new Image();
+            img.src = url;
+            img.onload = img.onerror = () => {
+                loadedCount++;
+                const progress = (loadedCount / urls.length) * 100;
+                loadingBar.style.width = `${progress}%`;
+                loadingText.innerText = `DECRYPTING... ${Math.round(progress)}%`;
+                resolve();
+            };
+        })));
+        setTimeout(() => {
+            document.getElementById('loading-screen').classList.add('fade-out');
+            document.body.classList.add('loaded');
+            updateCollectionUI();
+        }, 500);
     }
 
-    function preloadResources() {
-        const urls = [CARD_BACK_IMG, ...Object.values(QIN_EXPRESSIONS).map(e => e.img), ...Object.values(CARD_TYPES)];
-        const promises = urls.map(url => new Promise(resolve => { const img = new Image(); img.src = url; img.onload = resolve; img.onerror = resolve; }));
-        updateCollectionUI();
-        return Promise.race([Promise.all(promises), new Promise(r => setTimeout(r, 3000))]);
-    }
+    function toggleCollection() { document.getElementById('collection-drawer').classList.toggle('expanded'); }
 
     function updateCollectionUI() {
         const bar = document.getElementById('collection-bar');
-        if(!bar) return; bar.innerHTML = '';
+        bar.innerHTML = '';
         const items = [
             { id: "梅菲斯特", icon: CARD_TYPES["梅菲斯特"], label: "梅菲斯特的獵物" },
             { id: "薛明", icon: CARD_TYPES["薛明"], label: "銘謝惠顧" },
@@ -376,96 +316,42 @@
             if(item.isText) { div.innerText = item.icon; div.style.fontSize = "18px"; div.style.color = "#eee"; } 
             else { const img = document.createElement('img'); img.src = item.icon; div.appendChild(img); }
             const hint = document.createElement('span'); hint.className = 'hint'; hint.innerText = item.label; div.appendChild(hint);
-            if(collection[item.id]) { 
-                div.onclick = (e) => {
-                    e.stopPropagation(); // 阻止冒泡避免關閉抽屜
-                    viewRecollection(item.id, item.hasUrl);
-                }; 
-            }
+            if(collection[item.id]) div.onclick = (e) => { e.stopPropagation(); viewRecollection(item.id, item.hasUrl); };
             bar.appendChild(div);
         });
     }
 
     function viewRecollection(id, showLink) {
-        const data = ENDING_DATA[id];
-        const screen = document.getElementById('end-screen');
-        const win = document.getElementById('end-window');
+        const data = ENDING_DATA[id] || ENDING_DATA["lose_round"];
         document.getElementById('end-title').innerText = data.title;
-        document.getElementById('end-desc').innerHTML = typeof data.story === 'function' ? data.story : data.story;
+        document.getElementById('end-desc').innerHTML = typeof data.story === 'function' ? data.story() : data.story;
         const link = document.getElementById('gallery-link');
-        if (showLink && data.url) { link.classList.remove('hidden'); link.href = data.url; } 
-        else { link.classList.add('hidden'); }
-        document.getElementById('cat-paw').style.display = (id === 'win_album') ? 'block' : 'none';
-        win.classList.toggle('punish', id === "punishment");
-        win.classList.toggle('complete', id === "trophy");
-        document.getElementById('modal-close-btn').onclick = () => { screen.style.display = 'none'; document.getElementById('modal-close-btn').onclick = startNewRound; };
-        screen.style.display = 'flex';
-    }
-
-    function checkFullCollection() {
-        const currentCount = Object.keys(collection).filter(key => key !== 'trophy').length;
-        if (currentCount >= 9 && !collection['trophy']) {
-            collection['trophy'] = 1;
-            localStorage.setItem('qin_collection_v2', JSON.stringify(collection));
-            setTimeout(() => {
-                updateCollectionUI();
-                const screen = document.getElementById('end-screen');
-                const win = document.getElementById('end-window');
-                const data = ENDING_DATA['trophy'];
-                document.getElementById('end-title').innerText = data.title;
-                document.getElementById('end-desc').innerHTML = data.story;
-                document.getElementById('gallery-link').classList.add('hidden');
-                document.getElementById('cat-paw').style.display = 'none';
-                document.getElementById('modal-close-btn').innerText = "收下成就";
-                win.classList.add('complete');
-                screen.style.display = 'flex';
-            }, 2000);
-        }
+        if (showLink && data.url) { link.classList.remove('hidden'); link.href = data.url; } else { link.classList.add('hidden'); }
+        document.getElementById('end-screen').style.display = 'flex';
     }
 
     function startNewRound(isFirstStart = false) {
         isLocked = true;
         document.getElementById('end-screen').style.display = 'none';
-        document.getElementById('end-window').classList.remove('complete', 'punish');
-        document.getElementById('modal-close-btn').innerText = "繼續遊戲";
-        
-        // 遊戲開始自動收起圖鑑
         document.getElementById('collection-drawer').classList.remove('expanded');
-
-        if (targetPool.length === 0) targetPool = Object.keys(CARD_TYPES);
-        let uncollectedInPool = targetPool.filter(id => !collection[id]);
-        currentTarget = uncollectedInPool.length > 0 ? uncollectedInPool[Math.floor(Math.random() * uncollectedInPool.length)] : targetPool[Math.floor(Math.random() * targetPool.length)];
-
+        currentTarget = targetPool[Math.floor(Math.random() * targetPool.length)];
         document.getElementById('target-name').innerText = currentTarget;
         document.getElementById('target-icon').src = CARD_TYPES[currentTarget];
-
         const grid = document.getElementById('grid');
         grid.innerHTML = '';
         const cardData = [...Object.keys(CARD_TYPES), ...Object.keys(CARD_TYPES)].sort(() => Math.random() - 0.5);
         cardData.forEach((type, i) => {
             const card = document.createElement('div');
             card.className = 'card'; card.dataset.type = type; card.dataset.index = i;
-            card.innerHTML = `<div class="card-face card-back" style="background-image: url('${CARD_BACK_IMG}'); background-size:cover;"></div><div class="card-face card-front"><img src="${CARD_TYPES[type]}"></div>`;
+            card.innerHTML = `<div class="card-face card-back" style="background-image: url('${CARD_BACK_IMG}')"></div><div class="card-face card-front"><img src="${CARD_TYPES[type]}"></div>`;
             card.onclick = () => { if(!isLocked && currentPlayer === 1 && !card.classList.contains('flipped')) handleFlip(card); };
             grid.appendChild(card);
         });
-
-        const lastWin = localStorage.getItem('qin_last_winner');
-        currentPlayer = lastWin ? parseInt(lastWin) : (Math.random() < 0.5 ? 1 : 2);
-        flippedCards = []; qinMemory = {};
-        isFirstTurnOfRound = true; 
-
+        currentPlayer = (localStorage.getItem('qin_last_winner') === "2") ? 2 : (Math.random() < 0.5 ? 1 : 2);
+        flippedCards = []; qinMemory = {}; qinMatchStreak = 0;
         setTimeout(() => {
-            const openMsg = OPENING_DIALOGUES[Math.floor(Math.random() * OPENING_DIALOGUES.length)];
-            if (currentPlayer === 2) {
-                updateTurnUI();
-                setQinState("thinking", isFirstStart ? openMsg : "勝局由贏家掌控，這局我先。");
-                setTimeout(qinAIAction, 1500);
-            } else {
-                isLocked = false;
-                updateTurnUI();
-                setQinState("normal", isFirstStart ? openMsg : "思考的樣子倒是挺可愛，準備好了嗎？");
-            }
+            if (currentPlayer === 2) { updateTurnUI(); setQinState("thinking", "這局我先。"); setTimeout(qinAIAction, 1500); } 
+            else { isLocked = false; updateTurnUI(); setQinState("normal", "準備好了嗎？"); }
         }, 800);
     }
 
@@ -480,111 +366,64 @@
         const [c1, c2] = flippedCards;
         if (c1.dataset.type === c2.dataset.type) {
             if (c1.dataset.type === currentTarget) { processEndingSequence(currentPlayer); return; }
-            const msg = (currentPlayer === 1) ? "不錯。" : "這對我就收下了。";
+            let msg = "";
+            if (currentPlayer === 2) {
+                qinMatchStreak++;
+                msg = qinMatchStreak >= 2 ? DIALOGUES.qin_streak[Math.min(qinMatchStreak - 2, DIALOGUES.qin_streak.length - 1)] : "這對我就收下了。";
+            } else { msg = "不錯。"; }
             setQinState(currentPlayer === 2 ? "match" : "normal", msg);
-            isFirstTurnOfRound = false;
             if (currentPlayer === 2) {
                 document.getElementById('qin-img').classList.add('shake');
                 setTimeout(() => { document.getElementById('qin-img').classList.remove('shake'); flippedCards = []; qinAIAction(); }, 800);
             } else { flippedCards = []; isLocked = false; }
         } else {
-            const msgs = (currentPlayer === 1) ? DIALOGUES.player_fail : ["嘖。", "看走眼了嗎？沒關係。"];
+            if (currentPlayer === 2) qinMatchStreak = 0;
+            const msgs = (currentPlayer === 1) ? DIALOGUES.player_fail : ["嘖。", "記錯位置了嗎？"];
             setQinState(currentPlayer === 2 ? "fail" : "normal", msgs[Math.floor(Math.random() * msgs.length)]);
-            setTimeout(() => { c1.classList.remove('flipped'); c2.classList.remove('flipped'); flippedCards = []; isFirstTurnOfRound = false; switchTurn(); }, 800);
+            setTimeout(() => { c1.classList.remove('flipped'); c2.classList.remove('flipped'); flippedCards = []; switchTurn(); }, 800);
         }
     }
 
     function switchTurn() {
         currentPlayer = (currentPlayer === 1) ? 2 : 1;
+        qinMatchStreak = 0;
         updateTurnUI();
-        if (currentPlayer === 2) { isLocked = true; setQinState("thinking", "輪到我了？那我就不客氣了。"); setTimeout(qinAIAction, 1000); }
+        if (currentPlayer === 2) { isLocked = true; setQinState("thinking", "輪到我了。"); setTimeout(qinAIAction, 1000); } 
         else { isLocked = false; setQinState("normal", DIALOGUES.player_waiting[Math.floor(Math.random()*DIALOGUES.player_waiting.length)]); }
     }
 
     function qinAIAction() {
-        const cards = document.querySelectorAll('.card');
-        const hidden = [...cards].filter(c => !c.classList.contains('flipped')).map(c => parseInt(c.dataset.index));
-        if (hidden.length === 0) return;
-        let p1, p2;
-        if (isFirstTurnOfRound) {
-            p1 = hidden[Math.floor(Math.random() * hidden.length)]; handleFlip(cards[p1]);
-            setTimeout(() => { const remain = hidden.filter(idx => idx != p1); p2 = remain[Math.floor(Math.random() * remain.length)]; handleFlip(cards[p2]); }, 700);
-            return;
-        }
-        const inMem = Object.keys(qinMemory).filter(idx => qinMemory[idx] === currentTarget && hidden.includes(parseInt(idx)));
-        if (inMem.length >= 2) { p1 = inMem[0]; p2 = inMem[1]; } 
-        else {
-            const typeInMem = {};
-            hidden.forEach(idx => { const t = qinMemory[idx]; if(t) { if(typeInMem[t]) { p1 = typeInMem[t]; p2 = idx; } else { typeInMem[t] = idx; } } });
-            if(!p1) {
-                p1 = hidden[Math.floor(Math.random() * hidden.length)]; handleFlip(cards[p1]);
-                setTimeout(() => { const m = Object.keys(qinMemory).find(idx => qinMemory[idx] === cards[p1].dataset.type && idx != p1 && hidden.includes(parseInt(idx))); p2 = m || hidden.filter(i => i != p1)[Math.floor(Math.random() * (hidden.length - 1))]; handleFlip(cards[p2]); }, 700);
-                return;
-            }
-        }
-        handleFlip(cards[p1]); setTimeout(() => handleFlip(cards[p2]), 700);
+        const cards = document.querySelectorAll('.card:not(.flipped)');
+        if (cards.length < 2) return;
+        handleFlip(cards[0]);
+        setTimeout(() => handleFlip(cards[1]), 700);
     }
 
     function processEndingSequence(winner) {
-        let reaction = "", state = "", title = "", story = "", url = "";
         localStorage.setItem('qin_last_winner', winner);
+        let data, reaction, state;
         if (winner === 1) {
-            consecutiveWins++; consecutiveLosses = 0; state = "lose"; 
-            reaction = consecutiveWins >= 2 ? `這已經是妳連贏的第 ${consecutiveWins} 局了。看來我得更認真點。` : "勝負已分。看來是我低估妳了。";
-            collection[currentTarget] = 1;
-            const base = ENDING_DATA[currentTarget]; title = base.title; story = base.story;
-            if (consecutiveWins >= 3) { consecutiveWins = 0; collection["win_album"] = 1; url = "win_album.html"; story += `<br><br><span class="story-narrative" style="color:var(--accent); font-weight:bold;">🐾 連勝三場！結局權限已解鎖。</span>`; }
+            consecutiveWins++; consecutiveLosses = 0; state = "lose";
+            collection[currentTarget] = 1; data = ENDING_DATA[currentTarget];
+            reaction = "勝負已分。";
+            if (consecutiveWins >= 3) { collection["win_album"] = 1; }
         } else {
-            consecutiveWins = 0; 
-            consecutiveLosses++;
-            collection["lose_round"] = 1; 
-
-            if (consecutiveLosses === 2) {
-                reaction = "連輸兩局了...小狸花，是因為我的存在讓妳分心，還是妳單純記性不好？";
-                state = "win";
-            } 
-            else if (consecutiveLosses === 3) {
-                reaction = "第三次。看來今天的幸運女神並不在妳那邊，還是妳其實在享受敗北的感覺？";
-                state = "win";
-            } 
-            else if (consecutiveLosses === 4) {
-                reaction = "第四次。再輸一次，這場遊戲的性質就要變了...妳是故意的，還是在期待什麼？";
-                state = "win";
-            }
-            else if (consecutiveLosses >= 5) {
-                consecutiveLosses = 0; 
-                state = "punish";
-                collection["punishment"] = 1;
-                reaction = "第五次了。看來妳已經做好了『覺悟』，那我就不客氣地收下我的戰利品了。";
-                const data = ENDING_DATA["punishment"];
-                title = data.title; story = data.story; url = data.url;
-            } 
-            else {
-                state = "win";
-                reaction = "看來，妳對我也並非完全了解。這局我收下了。";
-                const data = ENDING_DATA["lose_round"];
-                title = data.title; story = data.story; url = data.url;
-            }
-
-            if (state === "win") {
-                const data = ENDING_DATA["lose_round"];
-                title = data.title; story = data.story; url = data.url;
-            }
+            consecutiveWins = 0; consecutiveLosses++; state = "win";
+            collection["lose_round"] = 1; data = consecutiveLosses >= 5 ? ENDING_DATA["punishment"] : ENDING_DATA["lose_round"];
+            reaction = "這局我收下了。";
         }
         localStorage.setItem('qin_collection_v2', JSON.stringify(collection));
-        updateCollectionUI();
         localStorage.setItem('qin_consecutive_losses', consecutiveLosses);
         localStorage.setItem('qin_consecutive_wins', consecutiveWins);
         setQinState(state, reaction);
-        setTimeout(() => {
-            document.getElementById('end-title').innerText = title;
-            document.getElementById('end-desc').innerHTML = story;
+        setTimeout(() => { 
+            document.getElementById('end-title').innerText = data.title;
+            document.getElementById('end-desc').innerHTML = typeof data.story === 'function' ? data.story() : data.story;
             document.getElementById('status-counts').innerText = `連勝: ${consecutiveWins} / 連敗: ${consecutiveLosses}`;
-            const link = document.getElementById('gallery-link');
-            if (url) { link.classList.remove('hidden'); link.href = url; } else { link.classList.add('hidden'); }
             document.getElementById('end-screen').style.display = 'flex';
-            checkFullCollection(); 
-        }, 2500);
+            updateCollectionUI();
+            if (Object.keys(collection).length >= 9 && !collection['trophy']) { collection['trophy'] = 1; updateCollectionUI(); }
+        }, 2000);
     }
 
     function updateTurnUI() {
@@ -595,10 +434,9 @@
     function setQinState(key, msg = null) {
         const data = QIN_EXPRESSIONS[key];
         const img = document.getElementById('qin-img');
-        if(!img) return;
         img.style.opacity = 0;
         setTimeout(() => { img.src = data.img; document.getElementById('qin-text').innerText = msg || data.msg; img.style.opacity = 1; }, 200);
     }
-</script>
+    </script>
 </body>
 </html>

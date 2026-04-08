@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Forbidden Zone Celebration</title>
     <style>
+        #loading-screen { transition: opacity 0.8s ease, visibility 0.8s; }
+        #loading-screen.fade-out { opacity: 0; visibility: hidden; }
+        .main-container { filter: blur(10px); transition: filter 1s ease; }
+        body.loaded .main-container { filter: blur(0px); }
         :root {
             --bg-color: #050508;
             --card-back-bg: #121218;
@@ -21,7 +25,7 @@
         body { 
             background-color: var(--bg-color); 
             color: var(--text); 
-            font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+            font-family: "Segoe UI", "Microsoft JhengHei", sans-serif; 
             margin: 0; 
             display: flex; 
             flex-direction: column;
@@ -58,73 +62,14 @@
             }
         }
 
-        .collection-outer {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            background: rgba(10, 10, 15, 0.95);
-            backdrop-filter: blur(15px);
-            border-top: 2px solid var(--accent);
-            z-index: 1500;
-            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            transform: translateY(calc(100% - 40px)); 
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            box-shadow: 0 -10px 30px rgba(0,0,0,0.5);
-        }
-
-        .collection-outer.expanded {
-            transform: translateY(0);
-        }
-
-        .collection-header {
-            width: 100%;
-            height: 40px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            cursor: pointer;
-            background: linear-gradient(to bottom, rgba(255,211,42,0.15), transparent);
-        }
-
-        .collection-title { 
-            font-size: 0.7rem; 
-            color: var(--accent); 
-            letter-spacing: 2px; 
-            text-transform: uppercase; 
-            font-weight: bold;
-            margin: 0;
-        }
-        
-        .collection-title::after {
-            content: ' ▲';
-            font-size: 0.6rem;
-            margin-left: 10px;
-            transition: transform 0.3s;
-            display: inline-block;
-        }
-
-        .collection-outer.expanded .collection-title::after {
-            transform: rotate(180deg);
-        }
-
-        .collection-shelf { 
-            display: flex; 
-            justify-content: center; 
-            gap: 12px; 
-            flex-wrap: wrap; 
-            padding: 20px;
-            max-width: 800px;
-        }
-
-        .collection-item {
-            position: relative; width: 48px; height: 48px;
-            background: #111; border: 1px solid #333;
-            display: flex; align-items: center; justify-content: center;
-            filter: grayscale(1) brightness(0.3); transition: all 0.4s; border-radius: 4px;
-        }
+        .collection-outer { position: fixed; bottom: 0; left: 0; width: 100%; background: rgba(10, 10, 15, 0.95); backdrop-filter: blur(15px); border-top: 2px solid var(--accent); z-index: 1500; transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); transform: translateY(calc(100% - 40px)); display: flex; flex-direction: column; align-items: center; box-shadow: 0 -10px 30px rgba(0,0,0,0.5); }
+        .collection-outer.expanded { transform: translateY(0); }
+        .collection-header { width: 100%; height: 40px; display: flex; justify-content: center; align-items: center; cursor: pointer; background: linear-gradient(to bottom, rgba(255,211,42,0.15), transparent); }
+        .collection-title { font-size: 0.7rem; color: var(--accent); letter-spacing: 2px; text-transform: uppercase; font-weight: bold; margin: 0; }
+        .collection-title::after { content: ' ▲'; font-size: 0.6rem; margin-left: 10px; transition: transform 0.3s; display: inline-block; }
+        .collection-outer.expanded .collection-title::after { transform: rotate(180deg); }
+        .collection-shelf { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; padding: 20px; max-width: 800px; }
+        .collection-item { position: relative; width: 48px; height: 48px; background: #111; border: 1px solid #333; display: flex; align-items: center; justify-content: center; filter: grayscale(1) brightness(0.3); transition: all 0.4s; border-radius: 4px; }
         .collection-item.unlocked { filter: grayscale(0) brightness(1); border-color: rgba(255, 211, 42, 0.5); cursor: pointer; box-shadow: 0 0 5px rgba(255,211,42,0.1); }
         .collection-item.unlocked:hover { transform: scale(1.1); border-color: var(--accent); box-shadow: 0 0 15px var(--accent); }
         .collection-item img { width: 75%; height: 75%; object-fit: contain; pointer-events: none; }
@@ -132,20 +77,11 @@
         .collection-item.unlocked:hover .hint { display: block; }
 
         .qin-section { width: 300px; display: flex; flex-direction: column; align-items: center; flex-shrink: 0; }
-        .qin-portrait-frame {
-            width: 280px; height: 420px;
-            background: radial-gradient(circle at center, rgba(255, 77, 77, 0.15) 0%, transparent 70%);
-            border-bottom: 3px solid var(--qin-color);
-            overflow: hidden;
-            display: flex; justify-content: center; align-items: flex-end;
-            position: relative;
-            max-height: 60vh;
-        }
+        .qin-portrait-frame { width: 280px; height: 420px; background: radial-gradient(circle at center, rgba(255, 77, 77, 0.15) 0%, transparent 70%); border-bottom: 3px solid var(--qin-color); overflow: hidden; display: flex; justify-content: center; align-items: flex-end; position: relative; max-height: 60vh; }
         .qin-image { width: 100%; height: 100%; object-fit: contain; transition: opacity 0.6s ease-in-out; animation: qinBreathing 4s ease-in-out infinite; }
         @keyframes qinBreathing { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
         .shake { animation: qinShake 0.5s both; }
         @keyframes qinShake { 10%, 90% { transform: translate3d(-1px, 0, 0); } 20%, 80% { transform: translate3d(2px, 0, 0); } 30%, 50%, 70% { transform: translate3d(-4px, 0, 0); } 40%, 60% { transform: translate3d(4px, 0, 0); } }
-
         .qin-dialogue { margin-top: 12px; background: rgba(255, 255, 255, 0.03); border-left: 4px solid var(--qin-color); padding: 12px; width: 100%; min-height: 85px; font-size: 0.95rem; position: relative; line-height: 1.5; }
         .qin-name-tag { position: absolute; top: -10px; left: 10px; background: var(--qin-color); padding: 1px 8px; font-size: 0.7rem; font-weight: bold; }
 
@@ -170,25 +106,31 @@
         .modal-window { background: linear-gradient(145deg, #111 0%, #050508 100%); padding: 30px; border-top: 4px solid var(--qin-color); text-align: center; width: 100%; max-width: 450px; box-shadow: 0 15px 60px rgba(0,0,0,1); }
         .modal-window.punish { border-color: var(--punish-color); box-shadow: 0 0 40px var(--punish-color); }
         .modal-window.complete { border-color: var(--accent); border-top-width: 6px; }
-        
         #end-desc { text-align: left; font-size: 1rem; color: #eee; margin: 20px 0; line-height: 1.8; }
         .sylus-quote { color: #fff; font-weight: bold; border-left: 2px solid var(--qin-color); padding-left: 10px; display: block; margin: 10px 0; }
         .story-narrative { color: var(--narration); font-style: italic; display: block; }
-        
         .cat-paw-container { font-size: 2.5rem; margin: 10px 0; display: none; animation: popIn 0.5s both; }
         @keyframes popIn { from { transform: scale(0); } to { transform: scale(1); } }
-
         .action-btn { background: var(--qin-color); color: white; border: none; padding: 14px 30px; cursor: pointer; font-weight: bold; width: 100%; text-decoration: none; display: inline-block; font-size: 1rem; letter-spacing: 2px; transition: 0.3s; margin-top: 10px; }
         .action-btn:hover { filter: brightness(1.2); }
         .gallery-btn { background: transparent; border: 1px solid var(--accent); color: var(--accent); margin-bottom: 10px; }
         .gallery-btn:hover { background: var(--accent); color: #000; }
-        
         .hidden { display: none !important; }
         .name-input { width: 100%; padding: 12px; margin: 15px 0; background: #1a1a1a; border: 1px solid #444; color: white; text-align: center; font-size: 1rem; }
     </style>
 </head>
+
 <body>
 
+<!-- Loading Screen -->
+<div id="loading-screen" style="position:fixed; top:0; left:0; width:100%; height:100%; background: #050508; z-index:9999; display:flex; flex-direction:column; align-items:center; justify-content:center; backdrop-filter: blur(20px);">
+    <p id="loading-text" style="color: var(--qin-red); font-family: monospace; letter-spacing: 3px; font-size: 0.9rem; margin: 0 0 20px 0; text-align: center; width: 100%;">SYSTEM INITIALIZING...</p>
+    <div style="width: 200px; height: 2px; background: #333; position: relative; overflow: hidden;">
+        <div id="loading-bar" style="width: 0%; height: 100%; background: var(--qin-red); transition: width 0.3s;"></div>
+    </div>
+</div>
+
+    <!-- Setup Popup -->
     <div id="setup-screen" class="modal-overlay">
         <div class="modal-window">
             <h2 style="color: var(--accent); letter-spacing: 4px;">SCARLET FEAST: 0418</h2>
@@ -198,6 +140,7 @@
         </div>
     </div>
 
+    <!-- Ending Popup -->
     <div id="end-screen" class="modal-overlay">
         <div id="end-window" class="modal-window">
             <div id="cat-paw" class="cat-paw-container">🐾 🐾 🐾</div>
@@ -233,6 +176,7 @@
         </div>
     </div>
 
+    <!-- Collection Drawer -->
     <div class="collection-outer" id="collection-drawer">
         <div class="collection-header" onclick="toggleCollection()">
             <div class="collection-title">RECOLLECTION / ENDING GALLERY</div>
@@ -241,11 +185,12 @@
     </div>
 
     <script>
+    let qinMatchStreak = 0; 
     const CARD_BACK_IMG = "assets/card_back.jpg"; 
     const QIN_EXPRESSIONS = {
         "normal":   { img: "assets/qin_normal.webp", msg: "Are you ready?" },
         "thinking": { img: "assets/qin_thinking.webp", msg: "Let me think..." },
-        "match":    { img: "assets/qin_match.webp", msg: "I'll take this pair." },
+        "match":    { img: "assets/qin_match.webp", msg: "I'll be taking this pair." },
         "fail":     { img: "assets/qin_fail.webp", msg: "Tsk, did I remember the position wrong?" },
         "win":      { img: "assets/qin_win.webp", msg: "The match is decided." },
         "lose":     { img: "assets/qin_lose.webp", msg: "Not bad." },
@@ -253,51 +198,48 @@
     };
     const CARD_TYPES = {
         "Mephisto": "assets/crow.png", "Luke": "assets/luke.png", "Silas": "assets/silas.png",
-        "Pistol": "assets/gun.png", "Gem": "assets/gem.png", "Wine": "assets/wine.png"
+        "Gun": "assets/gun.png", "Gem": "assets/gem.png", "Wine": "assets/wine.png"
     };
     
     const OPENING_DIALOGUES = [
         "A kitten playing cards? Interesting. What are you planning to trade in this round?",
         "Are you ready to give me a surprise?",
         "The leader of Onychinus doesn't have much spare time, unless it's for you.",
-        "On this birthday, I'm more interested in what 'gift' you'll offer.",
-        "Don't be nervous. I might go easy on you... perhaps.",
         "The rule is simple: the winner can do anything to the loser."
     ];
 
     const DIALOGUES = {
-        player_match: ["Impressive, go again.", "Good memory, this set is yours.", "Tsk, you found it.", "You've got a good rhythm."],
-        system_match: ["Feeling lucky, I'll continue.", "I'll be taking this pair.", "Since you don't want it, I'll take it."],
-        player_fail: ["Did you forget the position? How amusing.", "Where is your focus wandering?", "Don't stare at me, the cards are over there.", "Distracted? Thinking about me?"],
-        system_fail: ["Tsk, misremembered.", "Did I miscalculate? No matter.", "Giving you a chance to catch up.", "That position just now... I've noted it."],
+        player_match: ["Impressive, go again.", "Good memory.", "You've got a good rhythm."],
+        system_match: ["Feeling lucky, I'll continue.", "I'll be taking this set.", "Since you don't want it, I'll take it."],
+        player_fail: ["Did you forget the position? How amusing.", "Where is your focus wandering?", "Thinking about me?"],
+        system_fail: ["Tsk, misremembered.", "Did I miscalculate? No matter.", "Giving you a chance to catch up."],
         player_waiting: [
             "Your hand has been hovering for a while. Hesitating?",
             "Do you need me to hold your hand while you pick one?",
-            "The cards are right there, yet your eyes are constantly on me.",
-            "Focus. Don't disappoint me.",
-            "Take your time. Watching your struggle is a pleasure in itself.",
-            "If you can't beat me, you won't be leaving tonight."
+            "The cards are right there, yet your eyes are constantly on me."
+        ],
+        qin_streak: [
+            "Two in a row. It seems the rhythm of this game is now mine.",
+            "The third set. At this rate, you won't even have the chance to lose politely, Kitten.",
+            "That's four. Are you just going to stand there and watch me take them all?",
+            "The fifth one... What is it? Does watching me win distract you that much?"
         ]
     };
 
     const ENDING_DATA = {
         "Mephisto": { title: "Ending: Mephisto's Gift", story: `<span class="story-narrative">You successfully obtained Mephisto. Sylus watches you:</span><span class="sylus-quote">“Mephisto has been eyeing this gem for a long time. Now it's yours. Consider it your reward for winning.” “Caw!! Caw-caw!”</span>` },
-        "Luke": { title: "Ending: Better Luck Next Time", story: `<span class="story-narrative">You flip the card, and a note left by Luke drops out: “Thanks for playing, try again next time.”</span><span class="sylus-quote">“That kid's little tricks... but you did win this round.”</span>` },
+        "Luke": { title: "Ending: Better Luck Next Time", story: `<span class="story-narrative">You flip the card, and a note left by Luke drops out: “Better luck next time.”</span><span class="sylus-quote">“That kid's little tricks... but you did win this round.”</span>` },
         "Silas": { title: "Ending: One More Time", story: `<span class="story-narrative">You flip Silas's card. On the back, messy handwriting says: “One more time”.</span><span class="sylus-quote">“Since that guy said so, shall we continue?”</span>` },
-        "Pistol": { title: "Ending: Firepower Upgrade", story: `<span class="story-narrative">You obtained the latest N109 model pistol. Sylus leans back elegantly:</span><span class="sylus-quote">“It suits you. Keep it safe, but don't point it at me.”</span>` },
+        "Gun": { title: "Ending: Firepower Upgrade", story: `<span class="story-narrative">Obtained latest N109 model pistol. Sylus leans back elegantly:</span><span class="sylus-quote">“It suits you. Keep it safe, but don't point it at me.”</span>` },
         "Wine": { title: "Ending: Victory Celebration", story: `<span class="story-narrative">Sylus pops the cork. He raises a glass to you:</span><span class="sylus-quote">“This is an excellent vintage. A toast to your victory.”</span>` },
         "Gem": { title: "Ending: Radiant Treasure", story: `<span class="story-narrative">You got the gem. Sylus accepts his defeat:</span><span class="sylus-quote">“You have the same penchant for shiny things as Mephisto. Take it.”</span>` },
         "lose_round": { title: "Ending: Defeated Kitten", story: `<span class="story-narrative">The final target falls into Sylus's hands. He looks at you playfully:</span><span class="sylus-quote">“It seems your luck and memory weren't enough today. From now on, you listen to me.”</span>`, url: "lose_album.html" },
-        "win_album": { title: "Hidden Surprise: Gambler's Reward", story: `<span class="story-narrative">Three consecutive wins... a bet is a bet.</span><span class="sylus-quote">“Not bad. Since you won, you can do whatever you want with me, Kitten.”</span>`, url: "win_album.html" },
+        "win_album": { title: "Bonus: Gambler's Reward", story: `<span class="story-narrative">Three consecutive wins... a bet is a bet.</span><span class="sylus-quote">“Not bad. Since you won, you can do whatever you want with me, Kitten.”</span>`, url: "win_album.html" },
         "punishment": { title: "Ending C: Punishment Game", story: `<span class="story-narrative">Five consecutive losses... are you doing this on purpose?</span><span class="sylus-quote">“Since your head can't remember, let's use your body instead. I assume you're prepared?”</span>`, url: "punish_album.html" },
-        "trophy": { 
-            title: "Achievement: Master Gambler", 
-            get story() { return `<img src="assets/qin_trophy_full.webp" style="width:100%; border-radius:8px; margin-bottom:15px; border:1px solid var(--accent); box-shadow: 0 0 15px rgba(255,211,42,0.3);"><span class="story-narrative">You have seen through all of Sylus's cards.</span><span class="sylus-quote">“To have collected them all... it seems you are truly obsessed with me, ${playerName}.”</span>`; }
-        }
+        "trophy": { title: "Achievement: Master Gambler", get story() { return `<img src="assets/qin_trophy_full.webp" style="width:100%; border-radius:8px; margin-bottom:15px; border:1px solid var(--accent);"><span class="story-narrative">You have seen through all of Sylus's cards.</span><span class="sylus-quote">“To have collected them all... it seems you are truly obsessed with me.”</span>`; } }
     };
 
     let currentTarget = "", playerName = "Kitten", currentPlayer = 1, flippedCards = [], isLocked = true, qinMemory = {};
-    let isFirstTurnOfRound = true; 
     let targetPool = Object.keys(CARD_TYPES);
     let consecutiveWins = parseInt(localStorage.getItem('qin_consecutive_wins')) || 0;
     let consecutiveLosses = parseInt(localStorage.getItem('qin_consecutive_losses')) || 0;
@@ -305,56 +247,61 @@
 
     window.addEventListener('DOMContentLoaded', async () => {
         const savedName = localStorage.getItem('qin_player_name');
-        const setupScreen = document.getElementById('setup-screen');
-
-        if (savedName && savedName !== "Kitten") {
+        if (savedName) {
             playerName = savedName;
             document.getElementById('p1-badge').innerText = playerName;
-            setupScreen.style.display = 'none';
+            document.getElementById('setup-screen').style.display = 'none';
             await preloadResources();
             startNewRound(true);
         } else {
-            setupScreen.style.display = 'flex';
+            document.getElementById('setup-screen').style.display = 'flex';
         }
     });
 
     async function initGame() {
         const nameInput = document.getElementById('p-name-input');
         const inputVal = nameInput.value.trim();
-        if (inputVal) playerName = inputVal;
-        else playerName = "Kitten";
-        
+        playerName = inputVal || "Kitten";
         localStorage.setItem('qin_player_name', playerName);
         document.getElementById('p1-badge').innerText = playerName;
         document.getElementById('setup-screen').style.display = 'none';
-        
         await preloadResources();
         startNewRound(true);
     }
 
-    function toggleCollection() {
-        document.getElementById('collection-drawer').classList.toggle('expanded');
+    async function preloadResources() {
+        const loadingBar = document.getElementById('loading-bar');
+        const loadingText = document.getElementById('loading-text');
+        const urls = [CARD_BACK_IMG, ...Object.values(QIN_EXPRESSIONS).map(e => e.img), ...Object.values(CARD_TYPES), "assets/qin_trophy_full.webp"];
+        let loadedCount = 0;
+        await Promise.all(urls.map(url => new Promise(resolve => {
+            const img = new Image();
+            img.src = url;
+            img.onload = img.onerror = () => {
+                loadedCount++;
+                const progress = (loadedCount / urls.length) * 100;
+                loadingBar.style.width = `${progress}%`;
+                loadingText.innerText = `DECRYPTING... ${Math.round(progress)}%`;
+                resolve();
+            };
+        })));
+        setTimeout(() => { document.getElementById('loading-screen').classList.add('fade-out'); document.body.classList.add('loaded'); updateCollectionUI(); }, 500);
     }
 
-    function preloadResources() {
-        const urls = [CARD_BACK_IMG, ...Object.values(QIN_EXPRESSIONS).map(e => e.img), ...Object.values(CARD_TYPES)];
-        const promises = urls.map(url => new Promise(resolve => { const img = new Image(); img.src = url; img.onload = resolve; img.onerror = resolve; }));
-        updateCollectionUI();
-        return Promise.race([Promise.all(promises), new Promise(r => setTimeout(r, 3000))]);
-    }
+    function toggleCollection() { document.getElementById('collection-drawer').classList.toggle('expanded'); }
 
     function updateCollectionUI() {
         const bar = document.getElementById('collection-bar');
-        if(!bar) return; bar.innerHTML = '';
+        bar.innerHTML = '';
         const items = [
             { id: "Mephisto", icon: CARD_TYPES["Mephisto"], label: "Mephisto's Gift" },
-            { id: "Luke", icon: CARD_TYPES["Luke"], label: "Luke's Note" },
-            { id: "Silas", icon: CARD_TYPES["Silas"], label: "Silas's Note" },
-            { id: "Pistol", icon: CARD_TYPES["Pistol"], label: "Firepower" },
+            { id: "Luke", icon: CARD_TYPES["Luke"], label: "Better Luck" },
+            { id: "Silas", icon: CARD_TYPES["Silas"], label: "One More Time" },
+            { id: "Gun", icon: CARD_TYPES["Gun"], label: "Firepower" },
             { id: "Wine", icon: CARD_TYPES["Wine"], label: "Victory Feast" },
             { id: "Gem", icon: CARD_TYPES["Gem"], label: "Radiant Gem" },
             { id: "lose_round", icon: CARD_BACK_IMG, label: "Defeat Memory" },
-            { id: "win_album", icon: "🐾", label: "Win Album", isText: true, hasUrl: true },
+            { id: "win_album", icon: "🐾", label: "Bonus", isText: true, hasUrl: true },
             { id: "punishment", icon: "⛓️", label: "Punishment", isText: true, hasUrl: true },
             { id: "trophy", icon: "🏆", label: "Full Trophy", isText: true }
         ];
@@ -364,94 +311,42 @@
             if(item.isText) { div.innerText = item.icon; div.style.fontSize = "18px"; div.style.color = "#eee"; } 
             else { const img = document.createElement('img'); img.src = item.icon; div.appendChild(img); }
             const hint = document.createElement('span'); hint.className = 'hint'; hint.innerText = item.label; div.appendChild(hint);
-            if(collection[item.id]) { 
-                div.onclick = (e) => {
-                    e.stopPropagation();
-                    viewRecollection(item.id, item.hasUrl);
-                }; 
-            }
+            if(collection[item.id]) div.onclick = (e) => { e.stopPropagation(); viewRecollection(item.id, item.hasUrl); };
             bar.appendChild(div);
         });
     }
 
     function viewRecollection(id, showLink) {
-        const data = ENDING_DATA[id];
-        const screen = document.getElementById('end-screen');
-        const win = document.getElementById('end-window');
+        const data = ENDING_DATA[id] || ENDING_DATA["lose_round"];
         document.getElementById('end-title').innerText = data.title;
-        document.getElementById('end-desc').innerHTML = typeof data.story === 'function' ? data.story : data.story;
+        document.getElementById('end-desc').innerHTML = typeof data.story === 'function' ? data.story() : data.story;
         const link = document.getElementById('gallery-link');
-        if (showLink && data.url) { link.classList.remove('hidden'); link.href = data.url; } 
-        else { link.classList.add('hidden'); }
-        document.getElementById('cat-paw').style.display = (id === 'win_album') ? 'block' : 'none';
-        win.classList.toggle('punish', id === "punishment");
-        win.classList.toggle('complete', id === "trophy");
-        document.getElementById('modal-close-btn').onclick = () => { screen.style.display = 'none'; document.getElementById('modal-close-btn').onclick = startNewRound; };
-        screen.style.display = 'flex';
-    }
-
-    function checkFullCollection() {
-        const currentCount = Object.keys(collection).filter(key => key !== 'trophy').length;
-        if (currentCount >= 9 && !collection['trophy']) {
-            collection['trophy'] = 1;
-            localStorage.setItem('qin_collection_v2', JSON.stringify(collection));
-            setTimeout(() => {
-                updateCollectionUI();
-                const screen = document.getElementById('end-screen');
-                const win = document.getElementById('end-window');
-                const data = ENDING_DATA['trophy'];
-                document.getElementById('end-title').innerText = data.title;
-                document.getElementById('end-desc').innerHTML = data.story;
-                document.getElementById('gallery-link').classList.add('hidden');
-                document.getElementById('cat-paw').style.display = 'none';
-                document.getElementById('modal-close-btn').innerText = "CLAIM TROPHY";
-                win.classList.add('complete');
-                screen.style.display = 'flex';
-            }, 2000);
-        }
+        if (showLink && data.url) { link.classList.remove('hidden'); link.href = data.url; } else { link.classList.add('hidden'); }
+        document.getElementById('end-screen').style.display = 'flex';
     }
 
     function startNewRound(isFirstStart = false) {
         isLocked = true;
         document.getElementById('end-screen').style.display = 'none';
-        document.getElementById('end-window').classList.remove('complete', 'punish');
-        document.getElementById('modal-close-btn').innerText = "CONTINUE GAME";
         document.getElementById('collection-drawer').classList.remove('expanded');
-
-        if (targetPool.length === 0) targetPool = Object.keys(CARD_TYPES);
-        let uncollectedInPool = targetPool.filter(id => !collection[id]);
-        currentTarget = uncollectedInPool.length > 0 ? uncollectedInPool[Math.floor(Math.random() * uncollectedInPool.length)] : targetPool[Math.floor(Math.random() * targetPool.length)];
-
+        currentTarget = targetPool[Math.floor(Math.random() * targetPool.length)];
         document.getElementById('target-name').innerText = currentTarget;
         document.getElementById('target-icon').src = CARD_TYPES[currentTarget];
-
         const grid = document.getElementById('grid');
         grid.innerHTML = '';
         const cardData = [...Object.keys(CARD_TYPES), ...Object.keys(CARD_TYPES)].sort(() => Math.random() - 0.5);
         cardData.forEach((type, i) => {
             const card = document.createElement('div');
             card.className = 'card'; card.dataset.type = type; card.dataset.index = i;
-            card.innerHTML = `<div class="card-face card-back" style="background-image: url('${CARD_BACK_IMG}'); background-size:cover;"></div><div class="card-face card-front"><img src="${CARD_TYPES[type]}"></div>`;
+            card.innerHTML = `<div class="card-face card-back" style="background-image: url('${CARD_BACK_IMG}')"></div><div class="card-face card-front"><img src="${CARD_TYPES[type]}"></div>`;
             card.onclick = () => { if(!isLocked && currentPlayer === 1 && !card.classList.contains('flipped')) handleFlip(card); };
             grid.appendChild(card);
         });
-
-        const lastWin = localStorage.getItem('qin_last_winner');
-        currentPlayer = lastWin ? parseInt(lastWin) : (Math.random() < 0.5 ? 1 : 2);
-        flippedCards = []; qinMemory = {};
-        isFirstTurnOfRound = true; 
-
+        currentPlayer = (localStorage.getItem('qin_last_winner') === "2") ? 2 : (Math.random() < 0.5 ? 1 : 2);
+        flippedCards = []; qinMemory = {}; qinMatchStreak = 0;
         setTimeout(() => {
-            const openMsg = OPENING_DIALOGUES[Math.floor(Math.random() * OPENING_DIALOGUES.length)];
-            if (currentPlayer === 2) {
-                updateTurnUI();
-                setQinState("thinking", isFirstStart ? openMsg : "The winner takes control. I'll go first this round.");
-                setTimeout(qinAIAction, 1500);
-            } else {
-                isLocked = false;
-                updateTurnUI();
-                setQinState("normal", isFirstStart ? openMsg : "You look adorable when you're thinking. Ready?");
-            }
+            if (currentPlayer === 2) { updateTurnUI(); setQinState("thinking", "I'll take the lead this time."); setTimeout(qinAIAction, 1500); } 
+            else { isLocked = false; updateTurnUI(); setQinState("normal", "Are you ready?"); }
         }, 800);
     }
 
@@ -466,111 +361,65 @@
         const [c1, c2] = flippedCards;
         if (c1.dataset.type === c2.dataset.type) {
             if (c1.dataset.type === currentTarget) { processEndingSequence(currentPlayer); return; }
-            const msg = (currentPlayer === 1) ? "Not bad." : "I'll take this set.";
+            let msg = "";
+            if (currentPlayer === 2) {
+                qinMatchStreak++;
+                msg = qinMatchStreak >= 2 ? DIALOGUES.qin_streak[Math.min(qinMatchStreak - 2, DIALOGUES.qin_streak.length - 1)] : "I'll take this set.";
+            } else { msg = "Not bad."; }
             setQinState(currentPlayer === 2 ? "match" : "normal", msg);
-            isFirstTurnOfRound = false;
             if (currentPlayer === 2) {
                 document.getElementById('qin-img').classList.add('shake');
                 setTimeout(() => { document.getElementById('qin-img').classList.remove('shake'); flippedCards = []; qinAIAction(); }, 800);
             } else { flippedCards = []; isLocked = false; }
         } else {
-            const msgs = (currentPlayer === 1) ? DIALOGUES.player_fail : ["Tsk.", "Did I miscalculate? No matter."];
+            if (currentPlayer === 2) qinMatchStreak = 0;
+            const msgs = (currentPlayer === 1) ? DIALOGUES.player_fail : ["Tsk.", "Misremembered."];
             setQinState(currentPlayer === 2 ? "fail" : "normal", msgs[Math.floor(Math.random() * msgs.length)]);
-            setTimeout(() => { c1.classList.remove('flipped'); c2.classList.remove('flipped'); flippedCards = []; isFirstTurnOfRound = false; switchTurn(); }, 800);
+            setTimeout(() => { c1.classList.remove('flipped'); c2.classList.remove('flipped'); flippedCards = []; switchTurn(); }, 800);
         }
     }
 
     function switchTurn() {
-        currentPlayer = (currentPlayer === 1) ? 2 : 1;
+        currentPlayer = (currentPlayer === 1) ? 2 : 1; qinMatchStreak = 0;
         updateTurnUI();
-        if (currentPlayer === 2) { isLocked = true; setQinState("thinking", "My turn? Then I won't be polite."); setTimeout(qinAIAction, 1000); }
+        if (currentPlayer === 2) { isLocked = true; setQinState("thinking", "My turn."); setTimeout(qinAIAction, 1000); } 
         else { isLocked = false; setQinState("normal", DIALOGUES.player_waiting[Math.floor(Math.random()*DIALOGUES.player_waiting.length)]); }
     }
 
     function qinAIAction() {
-        const cards = document.querySelectorAll('.card');
-        const hidden = [...cards].filter(c => !c.classList.contains('flipped')).map(c => parseInt(c.dataset.index));
-        if (hidden.length === 0) return;
-        let p1, p2;
-        if (isFirstTurnOfRound) {
-            p1 = hidden[Math.floor(Math.random() * hidden.length)]; handleFlip(cards[p1]);
-            setTimeout(() => { const remain = hidden.filter(idx => idx != p1); p2 = remain[Math.floor(Math.random() * remain.length)]; handleFlip(cards[p2]); }, 700);
-            return;
-        }
-        const inMem = Object.keys(qinMemory).filter(idx => qinMemory[idx] === currentTarget && hidden.includes(parseInt(idx)));
-        if (inMem.length >= 2) { p1 = inMem[0]; p2 = inMem[1]; } 
-        else {
-            const typeInMem = {};
-            hidden.forEach(idx => { const t = qinMemory[idx]; if(t) { if(typeInMem[t]) { p1 = typeInMem[t]; p2 = idx; } else { typeInMem[t] = idx; } } });
-            if(!p1) {
-                p1 = hidden[Math.floor(Math.random() * hidden.length)]; handleFlip(cards[p1]);
-                setTimeout(() => { const m = Object.keys(qinMemory).find(idx => qinMemory[idx] === cards[p1].dataset.type && idx != p1 && hidden.includes(parseInt(idx))); p2 = m || hidden.filter(i => i != p1)[Math.floor(Math.random() * (hidden.length - 1))]; handleFlip(cards[p2]); }, 700);
-                return;
-            }
-        }
-        handleFlip(cards[p1]); setTimeout(() => handleFlip(cards[p2]), 700);
+        const cards = document.querySelectorAll('.card:not(.flipped)');
+        if (cards.length < 2) return;
+        const i1 = Math.floor(Math.random() * cards.length);
+        let i2 = Math.floor(Math.random() * cards.length);
+        while(i1 === i2) i2 = Math.floor(Math.random() * cards.length);
+        handleFlip(cards[i1]); setTimeout(() => handleFlip(cards[i2]), 700);
     }
 
     function processEndingSequence(winner) {
-        let reaction = "", state = "", title = "", story = "", url = "";
         localStorage.setItem('qin_last_winner', winner);
+        let data, reaction, state;
         if (winner === 1) {
-            consecutiveWins++; consecutiveLosses = 0; state = "lose"; 
-            reaction = consecutiveWins >= 2 ? `This is your ${consecutiveWins}-win streak. I should take this more seriously.` : "The game is over. It seems I underestimated you.";
-            collection[currentTarget] = 1;
-            const base = ENDING_DATA[currentTarget]; title = base.title; story = base.story;
-            if (consecutiveWins >= 3) { consecutiveWins = 0; collection["win_album"] = 1; url = "win_album.html"; story += `<br><br><span class="story-narrative" style="color:var(--accent); font-weight:bold;">🐾 3-Win Streak! Ending unlocked.</span>`; }
+            consecutiveWins++; consecutiveLosses = 0; state = "lose";
+            collection[currentTarget] = 1; data = ENDING_DATA[currentTarget];
+            reaction = "The match is decided.";
+            if (consecutiveWins >= 3) { collection["win_album"] = 1; }
         } else {
-            consecutiveWins = 0; 
-            consecutiveLosses++;
-            collection["lose_round"] = 1; 
-
-            if (consecutiveLosses === 2) {
-                reaction = "Two losses in a row... Kitten, is it my presence that distracts you, or do you just have a poor memory?";
-                state = "win";
-            } 
-            else if (consecutiveLosses === 3) {
-                reaction = "The third time. It seems Lady Luck isn't on your side today, or are you actually enjoying the feeling of defeat?";
-                state = "win";
-            } 
-            else if (consecutiveLosses === 4) {
-                reaction = "Fourth time. One more loss and the nature of this game will change... Are you doing this on purpose, or are you expecting something?";
-                state = "win";
-            }
-            else if (consecutiveLosses >= 5) {
-                consecutiveLosses = 0; 
-                state = "punish";
-                collection["punishment"] = 1;
-                reaction = "The fifth time. It seems you've made your 'resolve'. Then I'll gladly claim my prize.";
-                const data = ENDING_DATA["punishment"];
-                title = data.title; story = data.story; url = data.url;
-            } 
-            else {
-                state = "win";
-                reaction = "It seems you don't know me completely yet. I'll take this round.";
-                const data = ENDING_DATA["lose_round"];
-                title = data.title; story = data.story; url = data.url;
-            }
-
-            if (state === "win") {
-                const data = ENDING_DATA["lose_round"];
-                title = data.title; story = data.story; url = data.url;
-            }
+            consecutiveWins = 0; consecutiveLosses++; state = "win";
+            collection["lose_round"] = 1; data = consecutiveLosses >= 5 ? ENDING_DATA["punishment"] : ENDING_DATA["lose_round"];
+            reaction = "I'll take this round.";
         }
         localStorage.setItem('qin_collection_v2', JSON.stringify(collection));
-        updateCollectionUI();
         localStorage.setItem('qin_consecutive_losses', consecutiveLosses);
         localStorage.setItem('qin_consecutive_wins', consecutiveWins);
         setQinState(state, reaction);
-        setTimeout(() => {
-            document.getElementById('end-title').innerText = title;
-            document.getElementById('end-desc').innerHTML = story;
+        setTimeout(() => { 
+            document.getElementById('end-title').innerText = data.title;
+            document.getElementById('end-desc').innerHTML = typeof data.story === 'function' ? data.story() : data.story;
             document.getElementById('status-counts').innerText = `Wins: ${consecutiveWins} / Losses: ${consecutiveLosses}`;
-            const link = document.getElementById('gallery-link');
-            if (url) { link.classList.remove('hidden'); link.href = url; } else { link.classList.add('hidden'); }
             document.getElementById('end-screen').style.display = 'flex';
-            checkFullCollection(); 
-        }, 2500);
+            updateCollectionUI();
+            if (Object.keys(collection).length >= 9 && !collection['trophy']) { collection['trophy'] = 1; updateCollectionUI(); }
+        }, 2000);
     }
 
     function updateTurnUI() {
@@ -581,10 +430,9 @@
     function setQinState(key, msg = null) {
         const data = QIN_EXPRESSIONS[key];
         const img = document.getElementById('qin-img');
-        if(!img) return;
         img.style.opacity = 0;
         setTimeout(() => { img.src = data.img; document.getElementById('qin-text').innerText = msg || data.msg; img.style.opacity = 1; }, 200);
     }
-</script>
+    </script>
 </body>
 </html>
