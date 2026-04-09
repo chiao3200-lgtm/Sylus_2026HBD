@@ -42,7 +42,6 @@
             margin-bottom: 30px; letter-spacing: -2px;
         }
 
-        /* 終端機容器 */
         .terminal {
             width: 92%; max-width: 550px; 
             background: rgba(8, 8, 12, 0.95);
@@ -51,17 +50,12 @@
             padding: 5px; z-index: 15;
             box-shadow: 0 0 30px rgba(0,0,0,0.8);
         }
-        .terminal-inner { 
-            border: 1px solid rgba(255, 77, 77, 0.1); 
-            padding: 25px; position: relative; 
-        }
+        .terminal-inner { border: 1px solid rgba(255, 77, 77, 0.1); padding: 25px; position: relative; }
 
-        /* 終端機對話排版 */
         #message-box { 
             font-size: 0.95rem; line-height: 1.6; 
             min-height: 130px; margin-bottom: 25px; 
-            color: #ccc; border-left: 3px solid var(--qin-red);
-            padding-left: 15px;
+            color: #ccc; border-left: 3px solid var(--qin-red); padding-left: 15px;
         }
         #message-box b { color: var(--qin-red); text-transform: uppercase; letter-spacing: 1px; }
         #message-box i { color: #888; font-style: normal; display: block; font-size: 0.85rem; margin-top: 5px; line-height: 1.4; }
@@ -75,7 +69,6 @@
         }
         .action-btn:hover { background: var(--qin-red); color: #000; box-shadow: 0 0 15px var(--qin-red); }
 
-        /* --- 情報視窗 (Modal) 優化版 --- */
         .modal {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(2,2,4,0.98); z-index: 10000;
@@ -84,61 +77,21 @@
         .modal-content { 
             width: 95%; max-width: 520px; 
             background: linear-gradient(180deg, #0d0d14 0%, #050508 100%); 
-            border: 1px solid var(--qin-red); 
-            position: relative; padding: 65px 35px 35px; /* 增加頂部間距給標題 */
-            text-align: center;
-            box-shadow: 0 0 50px rgba(255, 77, 77, 0.2), inset 0 0 30px rgba(0,0,0,0.8);
+            border: 1px solid var(--qin-red); position: relative; padding: 65px 35px 35px; text-align: center;
         }
-        @keyframes modal-slide-in { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        /* 標題放大與定位 */
         .source-tag-box { 
-            display: inline-block; 
-            padding: 10px 30px; 
-            background: var(--qin-red); 
-            color: #000; 
-            font-size: 1.2rem; /* 標題字體放大 */
-            font-weight: 900; 
-            letter-spacing: 2px;
-            position: absolute;
-            top: -22px; /* 讓標題懸浮在邊框上 */
-            left: 50%;
-            transform: translateX(-50%) skew(-15deg); /* 傾斜效果 */
-            white-space: nowrap;
-            box-shadow: 5px 5px 0 rgba(255, 77, 77, 0.3);
+            display: inline-block; padding: 10px 30px; background: var(--qin-red); color: #000; 
+            font-size: 1.2rem; font-weight: 900; letter-spacing: 2px;
+            position: absolute; top: -22px; left: 50%; transform: translateX(-50%) skew(-15deg);
         }
+        #modal-text { font-size: 1.3rem; line-height: 1.7; color: #ffffff; }
+        #modal-text i { display: block; font-style: normal; font-size: 0.95rem; color: #999; margin-top: 20px; padding-top: 20px; border-top: 1px dashed rgba(255, 77, 77, 0.4); }
 
-        /* 情報內容對話排版 */
-        #modal-text { 
-            font-size: 1.3rem; 
-            line-height: 1.7; 
-            color: #ffffff; 
-            text-align: center;
-        }
-        /* 情報視窗內的英文樣式 */
-        #modal-text i {
-        display: block; /* 關鍵：強制換行 */
-        font-style: normal;
-        font-size: 0.95rem; 
-        color: #999; /* 英文顏色變淺 */
-        margin-top: 20px;
-        padding-top: 20px;
-        border-top: 1px dashed rgba(255, 77, 77, 0.4); /* 增加虛線分隔線 */
-        line-height: 1.5;
-}
-
-        .system-status {
-            margin-top: 20px; font-size: 0.7rem; color: #555; width: 92%; max-width: 550px;
-            display: flex; justify-content: space-between; font-family: monospace;
-        }
-
-        #game-link {
-            display: none; margin-bottom: 15px; text-align: center;
-            border: 1px dashed var(--qin-red); padding: 12px;
-            background: rgba(255, 77, 77, 0.05);
-        }
+        .system-status { margin-top: 20px; font-size: 0.7rem; color: #555; width: 92%; max-width: 550px; display: flex; justify-content: space-between; }
+        #game-link { display: none; margin-bottom: 15px; text-align: center; border: 1px dashed var(--qin-red); padding: 12px; background: rgba(255, 77, 77, 0.05); }
     </style>
 </head>
-<body id="main-body">
+<body>
 
     <div id="timer">00:00:00:00</div>
 
@@ -164,7 +117,6 @@
         <span>ZONE: N109_PRIVATE</span>
     </div>
 
-    <!-- 情報視窗 -->
     <div id="modal" class="modal">
         <div id="modal-body" class="modal-content">
             <div class="source-tag-box" id="modal-source">CLASSIFIED</div>
@@ -174,13 +126,12 @@
     </div>
 
     <script>
-        // 設定目標日期：2026年4月18日
         const TARGET = new Date('2026-04-18T00:00:00'); 
-        let clickTracker = 0; 
+        let intelClickCount = 0; 
+        let dialogueClickCount = 0; 
         let nextIntelThreshold = Math.floor(Math.random() * 5) + 5;
 
-        // 通訊對話資料庫
-const DB_DIALOGUES = [            
+        const DB_DIALOGUES = [            
             { r: "秦徹 / Sylus", t: "『這場牌局的賭注已經押下了，小貓，妳打算拿什麼來換？』<br><i>\"The bets are placed, kitten. What are you planning to trade in return?\"</i>", npc: false },
             { r: "秦徹 / Sylus", t: "『輸了反而更興奮了，我就喜歡妳這樣。』<br><i>\"Excited because you lost? That's what I like about you.\"</i>", npc: false },
             { r: "秦徹 / Sylus", t: "『小貓，玩火的時候要小心，別把自己也燒成灰燼。』<br><i>\"Careful playing with fire, kitten. Don't let yourself turn to ash.\"</i>", npc: false },
@@ -265,51 +216,64 @@ const DB_DIALOGUES = [
             { r: "梅菲斯特 / Mephisto", s: "高空偵查 / AERIAL VIEW", t: "「嘎——！（翻譯：首領看著監視畫面裡妳睡著的樣子竟然在笑！」<i>\n\"Gaw—! (Trans: Boss was actually smiling while watching the surveillance of you sleeping!\"</i>s", th: "theme-crow" },
         ];
 
-        function handleAction() {
-            clickTracker++;
-            const msgBox = document.getElementById('message-box');
-            
-            if (new Date() >= TARGET) {
-                document.getElementById('game-link').style.display = 'block';
-            }
+        function getDaysLeft() {
+            const diff = TARGET - new Date();
+            return Math.ceil(diff / (1000 * 60 * 60 * 24));
+        }
 
-            if (clickTracker >= nextIntelThreshold) {
+        function handleAction() {
+            const days = getDaysLeft();
+            const msgBox = document.getElementById('message-box');
+
+            // 1. 檢查是否觸發情報彈窗
+            intelClickCount++;
+            if (intelClickCount >= nextIntelThreshold) {
                 const intel = DB_INTELS[Math.floor(Math.random() * DB_INTELS.length)];
                 showModal(intel);
-                clickTracker = 0;
+                intelClickCount = 0;
                 nextIntelThreshold = Math.floor(Math.random() * 5) + 5;
-            } else {
-                const d = DB_DIALOGUES[Math.floor(Math.random() * DB_DIALOGUES.length)];
-                msgBox.innerHTML = `<b style="color:var(--qin-red)">${d.r}</b><br>${d.t}`;
+                return;
             }
+
+            // 2. 處理對話顯示頻率
+            dialogueClickCount++;
+            let pool;
+
+            if (days > 5) {
+                // 5日前：每 6 次點擊中，只有 1 次會是主角
+                if (dialogueClickCount % 6 === 0) {
+                    pool = DB_DIALOGUES.filter(d => d.npc === false);
+                } else {
+                    pool = DB_DIALOGUES.filter(d => d.npc === true);
+                }
+            } else {
+                // 5日內：100% 主要角色
+                pool = DB_DIALOGUES.filter(d => d.npc === false);
+            }
+
+            const d = pool[Math.floor(Math.random() * pool.length)];
+            msgBox.innerHTML = `<b style="color:var(--qin-red)">${d.r}</b><br>${d.t}`;
         }
 
         function updateTimer() {
             const timerEl = document.getElementById('timer');
             const diff = TARGET - new Date();
-            
             if (diff <= 0) {
                 timerEl.innerText = "04:18 ACCESS GRANTED";
                 document.getElementById('game-link').style.display = 'block';
                 return;
             }
-
             const d = Math.floor(diff / 86400000);
             const h = Math.floor((diff / 3600000) % 24);
             const m = Math.floor((diff / 60000) % 60);
             const s = Math.floor((diff / 1000) % 60);
-            
             timerEl.innerText = `${String(d).padStart(2,'0')}:${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
         }
 
         function showModal(data) {
-        const modal = document.getElementById('modal');
-        // 設定標題內容
-        document.getElementById('modal-source').innerHTML = data.s; 
-        // 設定對話內容（包含 <i> 標籤）
-        document.getElementById('modal-text').innerHTML = data.t; 
-        
-        modal.style.display = 'flex';
+            document.getElementById('modal-source').innerHTML = data.s; 
+            document.getElementById('modal-text').innerHTML = data.t; 
+            document.getElementById('modal').style.display = 'flex';
         }
 
         function closeModal() { document.getElementById('modal').style.display = 'none'; }
@@ -319,3 +283,4 @@ const DB_DIALOGUES = [
     </script>
 </body>
 </html>
+```
