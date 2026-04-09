@@ -233,9 +233,9 @@
         "Gun": { title: "Ending: Firepower Upgrade", story: `<span class="story-narrative">Obtained latest N109 model pistol. Sylus leans back elegantly:</span><span class="sylus-quote">“It suits you. Keep it safe, but don't point it at me.”</span>` },
         "Wine": { title: "Ending: Victory Celebration", story: `<span class="story-narrative">Sylus pops the cork. He raises a glass to you:</span><span class="sylus-quote">“This is an excellent vintage. A toast to your victory.”</span>` },
         "Gem": { title: "Ending: Radiant Treasure", story: `<span class="story-narrative">You got the gem. Sylus accepts his defeat:</span><span class="sylus-quote">“You have the same penchant for shiny things as Mephisto. Take it.”</span>` },
-        "lose_round": { title: "Ending: Defeated Kitten", story: `<span class="story-narrative">The final target falls into Sylus's hands. He looks at you playfully:</span><span class="sylus-quote">“It seems your luck and memory weren't enough today. From now on, you listen to me.”</span>`, url: "lose_album.html" },
-        "win_album": { title: "Bonus: Gambler's Reward", story: `<span class="story-narrative">Three consecutive wins... a bet is a bet.</span><span class="sylus-quote">“Not bad. Since you won, you can do whatever you want with me, Kitten.”</span>`, url: "win_album.html" },
-        "punishment": { title: "Ending C: Punishment Game", story: `<span class="story-narrative">Five consecutive losses... are you doing this on purpose?</span><span class="sylus-quote">“Since your head can't remember, let's use your body instead. I assume you're prepared?”</span>`, url: "punish_album.html" },
+        "lose_round": { title: "Ending: Defeated Kitten", story: `<span class="story-narrative">The final target falls into Sylus's hands. He looks at you playfully:</span><span class="sylus-quote">“It seems your luck and memory weren't enough today. From now on, you listen to me.”</span>`, url: "lose_album_en.html" },
+        "win_album": { title: "Bonus: Gambler's Reward", story: `<span class="story-narrative">Three consecutive wins... a bet is a bet.</span><span class="sylus-quote">“Not bad. Since you won, you can do whatever you want with me, Kitten.”</span>`, url: "win_album_en.html" },
+        "punishment": { title: "Ending C: Punishment Game", story: `<span class="story-narrative">Five consecutive losses... are you doing this on purpose?</span><span class="sylus-quote">“Since your head can't remember, let's use your body instead. I assume you're prepared?”</span>`, url: "punish_album_en.html" },
         "trophy": { title: "Achievement: Master Gambler", get story() { return `<img src="assets/qin_trophy_full.webp" style="width:100%; border-radius:8px; margin-bottom:15px; border:1px solid var(--accent);"><span class="story-narrative">You have seen through all of Sylus's cards.</span><span class="sylus-quote">“To have collected them all... it seems you are truly obsessed with me.”</span>`; } }
     };
 
@@ -301,7 +301,7 @@
             { id: "Wine", icon: CARD_TYPES["Wine"], label: "Victory Feast" },
             { id: "Gem", icon: CARD_TYPES["Gem"], label: "Radiant Gem" },
             { id: "lose_round", icon: CARD_BACK_IMG, label: "Defeat Memory" },
-            { id: "win_album", icon: "🐾", label: "Bonus", isText: true, hasUrl: true },
+            { id: "win_album", icon: "🐈", label: "Bonus", isText: true, hasUrl: true },
             { id: "punishment", icon: "⛓️", label: "Punishment", isText: true, hasUrl: true },
             { id: "trophy", icon: "🏆", label: "Full Trophy", isText: true }
         ];
