@@ -14,45 +14,130 @@
         }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; background-color: var(--bg-dark); color: #fff; font-family: "Microsoft JhengHei", sans-serif; overflow: hidden; }
-        #scene-container { position: relative; width: 100%; height: 100%; background-size: cover; background-position: center; transition: background-image 1s ease-in-out; cursor: pointer; }
+        
+        /* --- 背景場景控制 --- */
+        #scene-container { 
+            position: relative; 
+            width: 100%; 
+            height: 100%; 
+            background-size: contain; 
+            background-repeat: no-repeat; 
+            background-position: center; 
+            background-color: #000; 
+            transition: background-image 1s ease-in-out; 
+            cursor: pointer; 
+        }
         #scene-container::after { content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to bottom, transparent 40%, rgba(0,0,0,0.9) 100%); pointer-events: none; }
-        .dialogue-wrapper { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); width: 92%; max-width: 850px; z-index: 100; }
-        .dialogue-box { background: var(--glass); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); border: 1px solid var(--border); border-left: 5px solid var(--qin-red); padding: 30px 40px; min-height: 140px; position: relative; border-radius: 4px; transition: border-color 0.3s; }
-        .name-tag { position: absolute; top: -16px; left: 25px; background: var(--qin-red); color: white; padding: 2px 20px; font-weight: bold; letter-spacing: 3px; font-size: 0.9rem; box-shadow: 3px 3px 0px #000; transition: background 0.3s; }
-        .text-content { font-size: 1.15rem; line-height: 1.7; letter-spacing: 1px; color: #ddd; }
+        
+        /* --- 對話框系統 --- */
+        .dialogue-wrapper { 
+            position: absolute; 
+            bottom: 6%; 
+            left: 50%; 
+            transform: translateX(-50%); 
+            width: 90%; 
+            max-width: 1000px; 
+            z-index: 100; 
+            transition: opacity 0.4s ease, transform 0.4s ease; 
+        }
+        .dialogue-wrapper.ui-hidden {
+            opacity: 0;
+            transform: translate(-50%, 20px);
+            pointer-events: none;
+        }
+
+        .dialogue-box { 
+            background: linear-gradient(180deg, rgba(10, 5, 5, 0.4) 0%, rgba(0, 0, 0, 0.6) 100%); 
+            backdrop-filter: blur(20px); 
+            -webkit-backdrop-filter: blur(20px); 
+            border: 1px solid var(--border); 
+            border-left: 6px solid var(--qin-red); 
+            padding: 35px 50px; 
+            min-height: 150px; 
+            position: relative; 
+            border-radius: 4px; 
+            box-shadow: 0 15px 35px rgba(0,0,0,0.6);
+            transition: border-color 0.3s ease; 
+        }
+        .name-tag { 
+            position: absolute; 
+            top: -16px; 
+            left: 25px; 
+            background: var(--qin-red); 
+            color: white; 
+            padding: 2px 20px; 
+            font-weight: bold; 
+            letter-spacing: 3px; 
+            font-size: 0.9rem; 
+            box-shadow: 3px 3px 0px #000; 
+            transition: all 0.3s ease; 
+        }
+        .name-tag.player { background: var(--p1-blue); }
+        
+        .text-content { 
+            font-size: 1.25rem; 
+            line-height: 1.8; 
+            letter-spacing: 1.5px; 
+            color: #eeeeee; 
+            text-shadow: 2px 2px 4px rgba(0,0,0,1);
+        }
+        
         .box-controls { position: absolute; top: 10px; right: 15px; display: flex; gap: 10px; }
         .ctrl-btn { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #aaa; font-size: 0.75rem; padding: 4px 12px; cursor: pointer; transition: 0.3s; }
         .ctrl-btn:hover { background: var(--qin-red); color: white; }
         .click-hint { position: absolute; bottom: 15px; right: 20px; font-size: 0.75rem; color: var(--qin-red); opacity: 0.8; }
+        
+        #show-ui-hint {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0,0,0,0.5);
+            padding: 10px;
+            border-radius: 50%;
+            display: none;
+            z-index: 1001;
+            cursor: pointer;
+            border: 1px solid var(--qin-red);
+        }
+
+        /* --- 彈窗樣式 (同步版) --- */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.92); z-index: 1000; display: none; justify-content: center; align-items: center; }
         .modal-content { background: #111; padding: 35px; border-top: 3px solid var(--qin-red); text-align: center; width: 340px; box-shadow: 0 20px 50px rgba(0,0,0,0.8); }
-        .modal-btns { display: flex; gap: 15px; margin-top: 30px; }
         .m-btn { flex: 1; padding: 12px; cursor: pointer; font-weight: bold; border: 1px solid #444; background: transparent; color: #fff; text-decoration: none; display: inline-block; }
         .m-btn.confirm { background: var(--qin-red); border-color: var(--qin-red); }
+
         .credits-list { text-align: left; margin: 25px 0; }
         .credits-item { margin-bottom: 20px; border-bottom: 1px solid #222; padding-bottom: 8px; }
-        .credits-label { color: var(--qin-red); font-size: 0.7rem; font-weight: bold; display: block; letter-spacing: 2px; margin-bottom: 4px; text-transform: uppercase; }
+        .credits-label { color: var(--qin-red); font-size: 0.7rem; font-weight: bold; display: block; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 4px; }
         .credits-name { color: #fff; font-size: 0.95rem; display: flex; flex-direction: column; gap: 4px; }
-        .social-link { color: #70a1ff; text-decoration: none; font-size: 0.85rem; transition: 0.3s; }
-        .social-link:hover { color: #fff; text-decoration: underline; }
+        .social-link { color: #70a1ff; text-decoration: none; font-size: 0.85rem; }
+        
         #history-menu { position: fixed; top: 0; right: -320px; width: 300px; height: 100%; background: rgba(10, 5, 5, 0.98); z-index: 500; padding: 60px 30px; transition: 0.4s; border-left: 1px solid var(--qin-red); }
         #history-menu.active { right: 0; }
         .menu-item { padding: 18px 10px; border-bottom: 1px solid #222; cursor: pointer; color: #777; font-size: 0.9rem; }
-        .menu-item:hover, .menu-item.active { color: var(--qin-red); }
-        @media (max-width: 600px) { .dialogue-box { padding: 25px 20px; min-height: 120px; } .text-content { font-size: 1rem; } .box-controls { top: -40px; right: 0; } }
+
+        @media (max-width: 600px) { 
+            #scene-container { background-size: cover; }
+            .dialogue-wrapper { width: 94%; bottom: 20px; }
+            .dialogue-box { padding: 25px 20px; min-height: 120px; } 
+            .box-controls { top: -45px; right: 0; } 
+        }
     </style>
 </head>
 <body>
+    <!-- 離開視窗 -->
     <div id="exit-modal" class="modal-overlay">
-    <div class="modal-content">
-        <h3 style="margin-top:0;">結束回顧</h3>
-        <p style="color: #888; font-size: 0.85rem;">確定要回到博弈現場嗎？</p>
-        <div class="modal-btns">
-            <button class="m-btn" onclick="toggleExit(false)">取消</button>
-            <button class="m-btn confirm" onclick="location.href='game.html'">確定</button>
+        <div class="modal-content">
+            <h3 style="margin-top:0;">結束回顧</h3>
+            <p style="color: #888; font-size: 0.85rem;">確定要回到遊戲嗎？</p>
+            <div class="modal-btns" style="display:flex; gap:10px; margin-top:20px;">
+                <button class="m-btn" onclick="toggleExit(false)">取消</button>
+                <button class="m-btn confirm" onclick="location.href='game.html'">確定</button>
+            </div>
         </div>
     </div>
-</div>
+
+    <!-- 製作名單視窗 (同步其他版本) -->
     <div id="credits-modal" class="modal-overlay">
         <div class="modal-content">
             <h3 style="letter-spacing: 5px; color: var(--qin-red); margin-top:0;">STAFF</h3>
@@ -73,11 +158,15 @@
             <button class="m-btn confirm" style="width:100%;" onclick="closeCredits()">結束回顧</button>
         </div>
     </div>
-    <div id="scene-container" onclick="nextBeat()">
-        <div class="dialogue-wrapper">
+
+    <div id="show-ui-hint" onclick="toggleUI(event, false)">👁️</div>
+
+    <div id="scene-container" onclick="handleSceneClick()">
+        <div id="ui-wrapper" class="dialogue-wrapper">
            <div id="main-dialogue-box" class="dialogue-box">
                 <div id="display-name" class="name-tag">玩家姓名</div>
                 <div class="box-controls" onclick="event.stopPropagation()">
+                    <button class="ctrl-btn" onclick="toggleUI(event, true)">隱藏</button>
                     <button class="ctrl-btn" onclick="toggleMenu(true)">選單</button>
                     <button class="ctrl-btn" onclick="toggleExit(true)">離開</button>
                 </div>
@@ -86,24 +175,43 @@
             </div>
         </div>
     </div>
-   <div id="history-menu">
-    <h2 style="color:var(--qin-red); font-size: 1.2rem; margin-bottom:30px;">PUNISH MOMENTS</h2>
-    <div id="menu-list"></div>
-    <button onclick="location.href='game.html'" style="margin-top:20px; background:rgba(255,255,255,0.05); border:1px solid var(--qin-red); color:var(--qin-red); cursor:pointer; width:100%; padding:10px; font-weight:bold;">RETURN TO DUEL</button>
-    <button onclick="toggleMenu(false)" style="margin-top:10px; background:none; border:1px solid #444; color:#666; cursor:pointer; width:100%; padding:10px; font-size: 0.7rem;">CLOSE MENU</button>
-</div>
+
+    <div id="history-menu">
+        <h2 style="color:var(--qin-red); font-size: 1.2rem; margin-bottom:30px;">CELEBRATION</h2>
+        <div id="menu-list"></div>
+        <button onclick="toggleMenu(false)" style="margin-top:10px; background:none; border:1px solid #444; color:#666; cursor:pointer; width:100%; padding:10px; font-size: 0.7rem;">CLOSE MENU</button>
+    </div>
+
     <script>
         const playerName = localStorage.getItem('qin_player_name') || "小狸花";
+        let isUIHidden = false;
+
         const storyBeat = [
-            { img: "https://via.placeholder.com/1200x1800?text=Birthday_1", speaker: "player", text: "既然贏了，按照博弈的約定，今天你的一切都得聽我的。生日快樂，秦徹。" },
-            { img: "https://via.placeholder.com/1200x1800?text=Birthday_2", speaker: "player", text: "把這個貓耳戴上...不准摘下來。平時不可一世的暗網首領，現在看起來『乖順』多了。" },
-            { img: "https://via.placeholder.com/1200x1800?text=Birthday_3", speaker: "player", text: "張嘴，吃掉這口蛋糕。這是壽星的義務，不准皺眉，也不准吐出來。" },
-            { img: "https://via.placeholder.com/1200x1800?text=Birthday_4", speaker: "player", text: `怎麼，沒想到自己也有被我『擺佈』的一天吧？秦徹，你現在的表情真的很精彩。` },
-            { img: "https://via.placeholder.com/1200x1800?text=Birthday_5", speaker: "sylus", text: "（他突然扣住妳的手腕，反身將妳壓在沙發上）『擺佈？妳似乎忘了，縱容妳胡鬧，也是我的一種博弈。』" },
-            { img: "https://via.placeholder.com/1200x1800?text=Birthday_6", speaker: "sylus", text: `『生日禮物，我已經收到了。接下來的時間...該輪到我來討要 ${playerName} 欠下的債了。』` }
+            { img: "assets/End/win_01.webp", speaker: "player", text: "既然我贏了，按照約定今天你的一切都得聽我的。" },
+            { img: "assets/End/win_01.webp", speaker: "player", text: "我特地買的粉色貓耳果然很適合你。下次也給小梅買！" },
+            { img: "assets/End/win_01.webp", speaker: "player", text: "來拍照紀念一下，今日最可愛的暗點壽星..." },
+            { img: "assets/End/win_02.webp", speaker: "player", text: `秦徹，你想幹嘛！？...我的手機！！` },
+            { img: "assets/End/win_02.webp", speaker: "秦徹", text: "『你的品味還是一樣土，但慶祝服務還挺不錯，小貓的誠意我收到了。』" },
+            { img: "assets/End/win_02.webp", speaker: "秦徹", text: `『既然接受了這份「大禮」。接下來...該輪到我來回禮了， ${playerName} 。』` },
+            { img: "assets/End/win_03.webp", speaker: "player", text: `秦...徹，放我下..來...哈啊...啊！` },
+            { img: "assets/End/win_03.webp", speaker: "秦徹", text: `不放。口是心非的小貓，明明上次才說喜歡這個姿勢。` },
+            { img: "assets/End/win_03.webp", speaker: "秦徹", text: `而且裡面...也緊到讓我走不了。` },
+            { img: "assets/End/win_03.webp", speaker: " ", text: `（啪！啪！啪！肉體沉悶的撞擊聲迴盪在房內）` },
+            { img: "assets/End/win_03.webp", speaker: "秦徹", text: `雖然剛才的「禮物」還行，但現在這份禮物更讓我喜歡，${playerName} 。` },
+            { img: "assets/End/win_03.webp", speaker: "player", text: `咿呀！不...不行...` },
+            { img: "assets/End/win_03.webp", speaker: "秦徹", text: `真的不要？` },
+            { img: "assets/End/win_03.webp", speaker: "player", text: `...要。` },
+            { img: "assets/End/win_03.webp", speaker: "秦徹", text: `口是心非的小貓。` },
         ];
+
         let currentBeat = 0;
-        const scene = document.getElementById('scene-container'), textEl = document.getElementById('dialogue-text'), nameEl = document.getElementById('display-name'), boxEl = document.getElementById('main-dialogue-box'), menuList = document.getElementById('menu-list');
+        const scene = document.getElementById('scene-container');
+        const textEl = document.getElementById('dialogue-text');
+        const nameEl = document.getElementById('display-name');
+        const boxEl = document.getElementById('main-dialogue-box');
+        const uiWrapper = document.getElementById('ui-wrapper');
+        const menuList = document.getElementById('menu-list');
+
         function initStory() {
             updateScene();
             storyBeat.forEach((beat, index) => {
@@ -114,33 +222,71 @@
                 menuList.appendChild(item);
             });
         }
+
+        function handleSceneClick() {
+            if (isUIHidden) {
+                toggleUI(null, false);
+            } else {
+                nextBeat();
+            }
+        }
+
+        function toggleUI(e, hide) {
+            if (e) e.stopPropagation();
+            isUIHidden = hide;
+            if (isUIHidden) {
+                uiWrapper.classList.add('ui-hidden');
+                document.getElementById('show-ui-hint').style.display = 'block';
+            } else {
+                uiWrapper.classList.remove('ui-hidden');
+                document.getElementById('show-ui-hint').style.display = 'none';
+            }
+        }
+
         function updateScene() {
             const beat = storyBeat[currentBeat];
             scene.style.backgroundImage = `url('${beat.img}')`;
             if (beat.speaker === "player") {
                 nameEl.innerText = playerName;
-                nameEl.style.background = "var(--p1-blue)";
+                nameEl.classList.add('player');
                 boxEl.style.borderLeftColor = "var(--p1-blue)";
             } else {
-                nameEl.innerText = "秦徹";
-                nameEl.style.background = "var(--qin-red)";
+                nameEl.innerText = (beat.speaker === " ") ? "" : beat.speaker;
+                nameEl.classList.remove('player');
                 boxEl.style.borderLeftColor = "var(--qin-red)";
             }
-            textEl.style.transition = 'none'; textEl.style.opacity = 0;
+            textEl.style.transition = 'none'; 
+            textEl.style.opacity = 0;
             setTimeout(() => {
                 textEl.innerText = beat.text;
-                textEl.style.transition = 'all 0.5s ease-out'; textEl.style.opacity = 1;
+                textEl.style.transition = 'all 0.5s ease-out'; 
+                textEl.style.opacity = 1;
             }, 50);
-            document.querySelectorAll('.menu-item').forEach((item, idx) => item.classList.toggle('active', idx === currentBeat));
         }
+
         function nextBeat() {
-            if (currentBeat < storyBeat.length - 1) { currentBeat++; updateScene(); } 
-            else { document.getElementById('credits-modal').style.display = 'flex'; }
+            if (currentBeat < storyBeat.length - 1) { 
+                currentBeat++; 
+                updateScene(); 
+            } else { 
+                document.getElementById('credits-modal').style.display = 'flex'; 
+            }
         }
-        function closeCredits() { document.getElementById('credits-modal').style.display = 'none'; toggleExit(true); }
-        function jumpToBeat(index) { currentBeat = index; updateScene(); toggleMenu(false); }
+
+        function closeCredits() {
+            document.getElementById('credits-modal').style.display = 'none';
+            toggleExit(true);
+        }
+
+        function jumpToBeat(index) { 
+            currentBeat = index; 
+            updateScene(); 
+            toggleMenu(false); 
+        }
+
         function toggleMenu(show) { document.getElementById('history-menu').classList.toggle('active', show); }
         function toggleExit(show) { document.getElementById('exit-modal').style.display = show ? 'flex' : 'none'; }
+
         initStory();
     </script>
 </body>
