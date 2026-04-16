@@ -5,36 +5,118 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Recollection: Sylus's Punishment Game</title>
     <style>
-        :root { --qin-red: #ff3333; --bg-dark: #050505; --glass: rgba(0, 0, 0, 0.8); --border: rgba(255, 255, 255, 0.1); }
+        :root {
+            --qin-red: #ff3333;
+            --bg-dark: #050505;
+            --glass: rgba(0, 0, 0, 0.8);
+            --border: rgba(255, 255, 255, 0.1);
+        }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background-color: var(--bg-dark); color: #fff; font-family: "Arial", sans-serif; overflow: hidden; }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background-color: var(--bg-dark); color: #fff; font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif; overflow: hidden; }
         
-        #scene-container { position: relative; width: 100%; height: 100%; background-size: contain; background-repeat: no-repeat; background-position: center; background-color: #000; transition: background-image 1s ease-in-out; cursor: pointer; }
+        /* --- Background Scene Control --- */
+        #scene-container { 
+            position: relative; 
+            width: 100%; 
+            height: 100%; 
+            background-size: contain; 
+            background-repeat: no-repeat; 
+            background-position: center; 
+            background-color: #000; 
+            transition: background-image 1s ease-in-out; 
+            cursor: pointer; 
+        }
         #scene-container::after { content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to bottom, transparent 40%, rgba(0,0,0,0.9) 100%); pointer-events: none; }
         
-        .dialogue-wrapper { position: absolute; bottom: 6%; left: 50%; transform: translateX(-50%); width: 90%; max-width: 1000px; z-index: 100; transition: opacity 0.4s ease, transform 0.4s ease; }
-        .dialogue-wrapper.ui-hidden { opacity: 0; transform: translate(-50%, 20px); pointer-events: none; }
+        /* --- Dialogue System --- */
+        .dialogue-wrapper { 
+            position: absolute; 
+            bottom: 6%; 
+            left: 50%; 
+            transform: translateX(-50%); 
+            width: 90%; 
+            max-width: 1000px; 
+            z-index: 100; 
+            transition: opacity 0.4s ease, transform 0.4s ease; 
+        }
+        /* Style when UI is hidden */
+        .dialogue-wrapper.ui-hidden {
+            opacity: 0;
+            transform: translate(-50%, 20px);
+            pointer-events: none;
+        }
 
-        .dialogue-box { background: linear-gradient(180deg, rgba(10, 5, 5, 0.85) 0%, rgba(0, 0, 0, 0.95) 100%); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid var(--border); border-left: 6px solid var(--qin-red); padding: 35px 50px; min-height: 150px; position: relative; border-radius: 4px; box-shadow: 0 15px 35px rgba(0,0,0,0.6); }
-        .name-tag { position: absolute; top: -16px; left: 25px; background: var(--qin-red); color: white; padding: 2px 20px; font-weight: bold; letter-spacing: 2px; font-size: 0.9rem; box-shadow: 3px 3px 0px #000; transition: background 0.3s; }
+        .dialogue-box { 
+            background: linear-gradient(180deg, rgba(10, 5, 5, 0.85) 0%, rgba(0, 0, 0, 0.95) 100%); 
+            backdrop-filter: blur(20px); 
+            -webkit-backdrop-filter: blur(20px); 
+            border: 1px solid var(--border); 
+            border-left: 6px solid var(--qin-red); 
+            padding: 35px 50px; 
+            min-height: 150px; 
+            position: relative; 
+            border-radius: 4px; 
+            box-shadow: 0 15px 35px rgba(0,0,0,0.6);
+        }
+        .name-tag { 
+            position: absolute; 
+            top: -16px; 
+            left: 25px; 
+            background: var(--qin-red); 
+            color: white; 
+            padding: 2px 20px; 
+            font-weight: bold; 
+            letter-spacing: 1px; 
+            font-size: 0.9rem; 
+            box-shadow: 3px 3px 0px #000; 
+            transition: background 0.3s;
+        }
         .name-tag.player { background: #444; }
         
-        .text-content { font-size: 1.2rem; line-height: 1.6; letter-spacing: 0.5px; color: #eeeeee; text-shadow: 1px 1px 2px rgba(0,0,0,0.8); }
-        .box-controls { position: absolute; top: 10px; right: 15px; display: flex; gap: 10px; }
-        .ctrl-btn { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #aaa; font-size: 0.7rem; padding: 4px 12px; cursor: pointer; transition: 0.3s; }
-        .ctrl-btn:hover { background: var(--qin-red); color: white; }
-        .click-hint { position: absolute; bottom: 15px; right: 20px; font-size: 0.7rem; color: var(--qin-red); opacity: 0.8; }
+        .text-content { 
+            font-size: 1.15rem; 
+            line-height: 1.6; 
+            letter-spacing: 0.5px; 
+            color: #eeeeee; 
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+        }
         
-        #show-ui-hint { position: fixed; top: 20px; right: 20px; background: rgba(0,0,0,0.5); padding: 10px; border-radius: 50%; display: none; z-index: 1001; cursor: pointer; border: 1px solid var(--qin-red); }
+        .box-controls { position: absolute; top: 10px; right: 15px; display: flex; gap: 10px; }
+        .ctrl-btn { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #aaa; font-size: 0.7rem; padding: 4px 12px; cursor: pointer; transition: 0.3s; text-transform: uppercase; }
+        .ctrl-btn:hover { background: var(--qin-red); color: white; }
+        .click-hint { position: absolute; bottom: 15px; right: 20px; font-size: 0.7rem; color: var(--qin-red); opacity: 0.8; letter-spacing: 1px; }
+
+        /* UI Restoration Button */
+        #show-ui-hint {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0,0,0,0.5);
+            padding: 10px;
+            border-radius: 50%;
+            display: none;
+            z-index: 1001;
+            cursor: pointer;
+            border: 1px solid var(--qin-red);
+        }
+
+        /* --- Modal Styles --- */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.92); z-index: 1000; display: none; justify-content: center; align-items: center; }
         .modal-content { background: #111; padding: 35px; border-top: 3px solid var(--qin-red); text-align: center; width: 340px; box-shadow: 0 20px 50px rgba(0,0,0,0.8); }
-        .m-btn { flex: 1; padding: 12px; cursor: pointer; font-weight: bold; border: 1px solid #444; background: transparent; color: #fff; text-decoration: none; display: inline-block; }
+        .m-btn { flex: 1; padding: 12px; cursor: pointer; font-weight: bold; border: 1px solid #444; background: transparent; color: #fff; text-decoration: none; display: inline-block; text-transform: uppercase; }
         .m-btn.confirm { background: var(--qin-red); border-color: var(--qin-red); }
+
+        /* --- Staff Credits Styles --- */
+        .credits-list { text-align: left; margin: 25px 0; }
+        .credits-item { margin-bottom: 20px; border-bottom: 1px solid #222; padding-bottom: 8px; }
+        .credits-label { color: var(--qin-red); font-size: 0.7rem; font-weight: bold; display: block; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 4px; }
+        .credits-name { color: #fff; font-size: 0.95rem; display: flex; flex-direction: column; gap: 4px; }
+        .social-link { color: #70a1ff; text-decoration: none; font-size: 0.85rem; }
 
         #history-menu { position: fixed; top: 0; right: -320px; width: 300px; height: 100%; background: rgba(10, 5, 5, 0.98); z-index: 500; padding: 60px 30px; transition: 0.4s; border-left: 1px solid var(--qin-red); }
         #history-menu.active { right: 0; }
         .menu-item { padding: 18px 10px; border-bottom: 1px solid #222; cursor: pointer; color: #777; font-size: 0.9rem; }
-
+        
         @media (max-width: 600px) { 
             #scene-container { background-size: cover; }
             .dialogue-wrapper { width: 94%; bottom: 20px; }
@@ -44,10 +126,11 @@
     </style>
 </head>
 <body>
+
     <div id="exit-modal" class="modal-overlay">
         <div class="modal-content">
-            <h3>End Recollection</h3>
-            <p style="color: #888; font-size: 0.8rem;">Are you sure you want to leave this memory?</p>
+            <h3 style="margin-top:0;">End Recollection</h3>
+            <p style="color: #888; font-size: 0.85rem;">Are you sure you want to leave this memory?</p>
             <div class="modal-btns" style="display:flex; gap:15px; margin-top:30px;">
                 <button class="m-btn" onclick="toggleExit(false)">Cancel</button>
                 <button class="m-btn confirm" onclick="location.href='game.html'">Confirm</button>
@@ -55,27 +138,59 @@
         </div>
     </div>
 
+    <!-- Staff Credits Modal -->
+    <div id="credits-modal" class="modal-overlay">
+        <div class="modal-content">
+            <h3 style="letter-spacing: 5px; color: var(--qin-red); margin-top:0;">STAFF</h3>
+            <div class="credits-list">
+                <div class="credits-item">
+                    <span class="credits-label">Artist</span>
+                    <div class="credits-name">
+                        <span>子葉</span>
+                        <a href="https://x.com/aunliuyez" target="_blank" class="social-link">@aunliuyez</a>
+                    </div>
+                </div>
+                <div class="credits-item">
+                    <span class="credits-label">Web Design</span>
+                    <div class="credits-name">
+                        <span>TsangFei (蒼斐)</span>
+                        <a href="https://x.com/TsangFeiLAD" target="_blank" class="social-link">@TsangFeiLAD</a>
+                    </div>
+                </div>
+                <div class="credits-item">
+                    <span class="credits-label">Software</span>
+                    <span class="credits-name" style="font-size: 0.85rem; color: #888;">Google AI Studio</span>
+                </div>
+            </div>
+            <button class="m-btn confirm" style="width:100%;" onclick="closeCredits()">End Recollection</button>
+        </div>
+    </div>
+
+    <!-- UI Restoration Button -->
     <div id="show-ui-hint" onclick="toggleUI(event, false)">👁️</div>
 
     <div id="scene-container" onclick="handleSceneClick()">
         <div id="ui-wrapper" class="dialogue-wrapper">
             <div class="dialogue-box">
                 <div id="name-tag" class="name-tag">Sylus</div>
+                
                 <div class="box-controls" onclick="event.stopPropagation()">
                     <button class="ctrl-btn" onclick="toggleUI(event, true)">Hide</button>
                     <button class="ctrl-btn" onclick="toggleMenu(true)">Menu</button>
                     <button class="ctrl-btn" onclick="toggleExit(true)">Exit</button>
                 </div>
+
                 <div class="text-content" id="dialogue-text">...</div>
+                
                 <div class="click-hint">TAP TO CONTINUE ▶</div>
             </div>
         </div>
     </div>
     
     <div id="history-menu">
-        <h2 style="color:var(--qin-red); font-size: 1.2rem; margin-bottom:30px;">MOMENTS</h2>
+        <h2 style="color:var(--qin-red); font-size: 1.2rem; margin-bottom:30px; letter-spacing: 5px;">MOMENTS</h2>
         <div id="menu-list"></div>
-        <button onclick="toggleMenu(false)" style="margin-top:10px; background:none; border:1px solid #444; color:#666; cursor:pointer; width:100%; padding:10px; font-size: 0.7rem;">CLOSE</button>
+        <button onclick="toggleMenu(false)" style="margin-top:10px; background:none; border:1px solid #444; color:#666; cursor:pointer; width:100%; padding:10px; font-size: 0.7rem; text-transform: uppercase;">Close Menu</button>
     </div>
 
     <script>
@@ -88,7 +203,7 @@
             { speaker: playerName, text: "It hurts..." },
             { speaker: "Sylus", text: "Oh? Trembling this much, yet you still talk back? Come here." },
             { speaker: "Sylus", text: "Little liar. With your abilities, you could break free easily if you wanted to. Yet you say it hurts?" },
-            { speaker: "Sylus", text: "Where does it hurt? Down there? Or up here?" },
+            { speaker: "Sylus", text: "Where exactly does it hurt? Down there? Or up here?" },
             { speaker: playerName, text: "Everywhere... Ah! I told you not to keep hitting that spot...!" },
             { speaker: "Sylus", text: "But every time I do, you make such a delightful sound. If I only made you feel good, it wouldn't be a punishment, would it?" },
             { speaker: playerName, text: "(Nnh... ah!) Haa... hah! Ah...!" },
@@ -110,18 +225,25 @@
         function initStory() {
             scene.style.backgroundImage = `url('${PUNISH_IMAGE}')`;
             updateDialogue();
+            
             storyBeat.forEach((beat, i) => {
                 const item = document.createElement('div');
                 item.className = 'menu-item';
                 item.innerText = `Moment ${ (i+1).toString().padStart(2, '0') }`;
-                item.onclick = (e) => { e.stopPropagation(); jumpToBeat(i); };
+                item.onclick = (e) => {
+                    e.stopPropagation();
+                    jumpToBeat(i);
+                };
                 menuList.appendChild(item);
             });
         }
 
         function handleSceneClick() {
-            if (isUIHidden) toggleUI(null, false);
-            else nextBeat();
+            if (isUIHidden) {
+                toggleUI(null, false);
+            } else {
+                nextBeat();
+            }
         }
 
         function toggleUI(e, hide) {
@@ -139,9 +261,11 @@
         function updateDialogue() {
             const beat = storyBeat[curIdx];
             nameEl.innerText = beat.speaker;
-            if(beat.speaker === playerName) nameEl.classList.add('player');
-            else nameEl.classList.remove('player');
-            
+            if(beat.speaker === playerName) {
+                nameEl.classList.add('player');
+            } else {
+                nameEl.classList.remove('player');
+            }
             textEl.style.transition = 'none';
             textEl.style.opacity = 0;
             setTimeout(() => {
@@ -149,16 +273,33 @@
                 textEl.style.transition = 'all 0.5s ease-out';
                 textEl.style.opacity = 1;
             }, 50);
+            document.querySelectorAll('.menu-item').forEach((item, i) => {
+                item.classList.toggle('active', i === curIdx);
+            });
         }
 
         function nextBeat() {
-            if (curIdx < storyBeat.length - 1) { curIdx++; updateDialogue(); }
-            else { toggleExit(true); }
+            if (curIdx < storyBeat.length - 1) {
+                curIdx++;
+                updateDialogue();
+            } else {
+                document.getElementById('credits-modal').style.display = 'flex';
+            }
         }
 
-        function jumpToBeat(i) { curIdx = i; updateDialogue(); toggleMenu(false); }
-        function toggleMenu(s) { document.getElementById('history-menu').classList.toggle('active', s); }
-        function toggleExit(s) { document.getElementById('exit-modal').style.display = s ? 'flex' : 'none'; }
+        function closeCredits() {
+            document.getElementById('credits-modal').style.display = 'none';
+            toggleExit(true);
+        }
+
+        function jumpToBeat(i) {
+            curIdx = i;
+            updateDialogue();
+            toggleMenu(false);
+        }
+
+        function toggleMenu(show) { document.getElementById('history-menu').classList.toggle('active', show); }
+        function toggleExit(show) { document.getElementById('exit-modal').style.display = show ? 'flex' : 'none'; }
 
         initStory();
     </script>

@@ -100,11 +100,18 @@
             border: 1px solid var(--qin-red);
         }
 
-        /* --- 彈窗與選單 --- */
+        /* --- 彈窗樣式 --- */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.92); z-index: 1000; display: none; justify-content: center; align-items: center; }
         .modal-content { background: #111; padding: 35px; border-top: 3px solid var(--qin-red); text-align: center; width: 340px; box-shadow: 0 20px 50px rgba(0,0,0,0.8); }
         .m-btn { flex: 1; padding: 12px; cursor: pointer; font-weight: bold; border: 1px solid #444; background: transparent; color: #fff; text-decoration: none; display: inline-block; }
         .m-btn.confirm { background: var(--qin-red); border-color: var(--qin-red); }
+
+        /* --- Staff 名單樣式 --- */
+        .credits-list { text-align: left; margin: 25px 0; }
+        .credits-item { margin-bottom: 20px; border-bottom: 1px solid #222; padding-bottom: 8px; }
+        .credits-label { color: var(--qin-red); font-size: 0.7rem; font-weight: bold; display: block; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 4px; }
+        .credits-name { color: #fff; font-size: 0.95rem; display: flex; flex-direction: column; gap: 4px; }
+        .social-link { color: #70a1ff; text-decoration: none; font-size: 0.85rem; }
 
         #history-menu { position: fixed; top: 0; right: -320px; width: 300px; height: 100%; background: rgba(10, 5, 5, 0.98); z-index: 500; padding: 60px 30px; transition: 0.4s; border-left: 1px solid var(--qin-red); }
         #history-menu.active { right: 0; }
@@ -123,11 +130,39 @@
     <div id="exit-modal" class="modal-overlay">
         <div class="modal-content">
             <h3 style="margin-top:0;">結束回顧</h3>
-            <p style="color: #888; font-size: 0.85rem;">確定要回到遊戲嗎？</p>
+            <p style="color: #888; font-size: 0.85rem;">確定要離開這段回憶嗎？</p>
             <div class="modal-btns" style="display:flex; gap:15px; margin-top:30px;">
                 <button class="m-btn" onclick="toggleExit(false)">取消</button>
                 <button class="m-btn confirm" onclick="location.href='game.html'">確定</button>
             </div>
+        </div>
+    </div>
+
+    <!-- 補回 Staff 名單視窗 -->
+    <div id="credits-modal" class="modal-overlay">
+        <div class="modal-content">
+            <h3 style="letter-spacing: 5px; color: var(--qin-red); margin-top:0;">STAFF</h3>
+            <div class="credits-list">
+                <div class="credits-item">
+                    <span class="credits-label">繪者 Artist</span>
+                    <div class="credits-name">
+                        <span>子葉</span>
+                        <a href="https://x.com/aunliuyez" target="_blank" class="social-link">@aunliuyez</a>
+                    </div>
+                </div>
+                <div class="credits-item">
+                    <span class="credits-label">網頁設計 Web Design</span>
+                    <div class="credits-name">
+                        <span>蒼斐</span>
+                        <a href="https://x.com/TsangFeiLAD" target="_blank" class="social-link">@TsangFeiLAD</a>
+                    </div>
+                </div>
+                <div class="credits-item">
+                    <span class="credits-label">生成軟體 Software</span>
+                    <span class="credits-name" style="font-size: 0.85rem; color: #888;">Google AI studio</span>
+                </div>
+            </div>
+            <button class="m-btn confirm" style="width:100%;" onclick="closeCredits()">結束回顧</button>
         </div>
     </div>
 
@@ -203,7 +238,6 @@
             });
         }
 
-        // 處理場景點擊：隱藏時先顯示 UI，否則跳下一句
         function handleSceneClick() {
             if (isUIHidden) {
                 toggleUI(null, false);
@@ -212,7 +246,6 @@
             }
         }
 
-        // 切換 UI 顯示/隱藏
         function toggleUI(e, hide) {
             if (e) e.stopPropagation();
             isUIHidden = hide;
@@ -245,13 +278,20 @@
             });
         }
 
+        // 修改這裡：播完後顯示 credits 視窗
         function nextBeat() {
             if (curIdx < storyBeat.length - 1) {
                 curIdx++;
                 updateDialogue();
             } else {
-                toggleExit(true); // 播完後顯示離開視窗
+                document.getElementById('credits-modal').style.display = 'flex';
             }
+        }
+
+        // 點擊名單關閉後，再顯示確認離開彈窗
+        function closeCredits() {
+            document.getElementById('credits-modal').style.display = 'none';
+            toggleExit(true);
         }
 
         function jumpToBeat(i) {
