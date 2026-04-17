@@ -43,20 +43,27 @@
         .zh-text { display: block; font-size: clamp(0.9rem, 1.5vw, 1.05rem); color: #fff; font-weight: 500; margin-bottom: 2px; }
         .en-text { display: block; font-size: clamp(0.65rem, 1vw, 0.75rem); color: var(--en-text); font-style: italic; letter-spacing: 0.5px; }
 
-        /* --- 名字輸入區 --- */
-        .input-group {
-            opacity: 0; animation: fadeIn 1s 1.4s forwards; margin-bottom: 25px; width: 100%; max-width: 320px;
-        }
-        .name-input {
-            width: 100%; padding: 15px; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); color: #fff; text-align: center; font-size: 1rem; border-radius: 4px; transition: 0.3s;
-        }
-        .name-input:focus { outline: none; border-color: var(--accent); background: rgba(255,255,255,0.1); }
-
         /* 按鈕區 */
         .btn-container { display: flex; gap: 20px; justify-content: center; opacity: 0; animation: fadeIn 1s 1.6s forwards; width: 100%; }
         .lang-btn { padding: 15px 35px; border: 1px solid var(--accent); background: transparent; color: var(--accent); text-decoration: none; font-weight: bold; letter-spacing: 2px; transition: all 0.3s; min-width: 240px; border-radius: 4px; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .lang-btn:hover { background: var(--accent); color: #000; box-shadow: 0 0 25px rgba(255, 211, 42, 0.5); transform: translateY(-3px); }
         .btn-label-en { font-size: 0.55rem; opacity: 0.8; letter-spacing: 1px; margin-top: 4px; text-transform: uppercase; }
+
+        /* --- 年齡警告視窗 --- */
+        .warning-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 2000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(10px);
+        }
+        .warning-box {
+            background: #111; border-top: 4px solid var(--qin-red); padding: 40px; max-width: 420px; width: 90%; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.8);
+        }
+        .warning-title { color: var(--accent); font-size: 1.2rem; letter-spacing: 3px; margin-bottom: 15px; font-weight: bold; }
+        .warning-text { color: #ccc; line-height: 1.6; margin-bottom: 30px; font-size: 0.95rem; }
+        .warning-btns { display: flex; gap: 15px; }
+        .w-btn {
+            flex: 1; padding: 12px; border: 1px solid #444; background: transparent; color: #fff; cursor: pointer; font-weight: bold; transition: 0.3s; letter-spacing: 2px;
+        }
+        .w-btn.confirm { background: var(--qin-red); border-color: var(--qin-red); }
+        .w-btn:hover { filter: brightness(1.2); transform: translateY(-2px); }
 
         @keyframes tracking-in-expand { 0% { letter-spacing: -0.5em; opacity: 0; } 40% { opacity: 0.6; } 100% { opacity: 1; } }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
@@ -70,6 +77,21 @@
 </head>
 <body>
 
+    <!-- 年齡驗證彈窗 -->
+    <div id="age-modal" class="warning-overlay">
+        <div class="warning-box">
+            <div class="warning-title">ACCESS RESTRICTION</div>
+            <div class="warning-text">
+                因神祕結局較為敏感，確定您已成年？<br>
+                <small style="color:#666; font-size: 0.7rem;">Sensitive content ahead. Are you over 18?</small>
+            </div>
+            <div class="warning-btns">
+                <button class="w-btn" onclick="ageVerify(false)">否 (No)</button>
+                <button class="w-btn confirm" onclick="ageVerify(true)">是 (Yes)</button>
+            </div>
+        </div>
+    </div>
+
     <section class="hero-section">
         <div class="content-wrapper">
             <h1>Protocol 0418</h1>
@@ -81,18 +103,16 @@
                 <div class="rule-item"><span class="zh-text">指定卡牌不重複出現，共 6 組目標</span><span class="en-text">Targets rotate through 6 unique sets without repetition</span></div>
                 <div class="rule-item"><span class="zh-text">率先湊齊系統指定「目標牌組」即獲勝</span><span class="en-text">First to match the specified "Target" wins the round</span></div>
                 <div class="rule-item"><span class="zh-text">若連續輸給秦徹，將觸發「秘密結局」</span><span class="en-text">Losing many times in a row triggers a "Secret End"</span></div>
-                <div class="rule-item"><span class="zh-text">特定卡牌可解鎖專屬對話與🔞神祕相簿</span><span class="en-text">Specific cards unlock unique stories and 🔞secret albums</span></div>
+                <div class="rule-item"><span class="zh-text">特定卡牌可解鎖專屬對話與🛑神祕相簿🛑</span><span class="en-text">Specific cards unlock unique stories and secret albums</span></div>
             </div>
-
-            
 
             <!-- 入口按鈕 -->
             <div class="btn-container">
-                <div class="lang-btn" onclick="goToGame('game.html')">
+                <div class="lang-btn" onclick="triggerWarning('game.html')">
                     <span>進入遊戲</span>
                     <span class="btn-label-en">Traditional Chinese</span>
                 </div>
-                <div class="lang-btn" onclick="goToGame('game_en.html')">
+                <div class="lang-btn" onclick="triggerWarning('game_en.html')">
                     <span>START DUEL</span>
                     <span class="btn-label-en">English Version</span>
                 </div>
@@ -101,10 +121,21 @@
     </section>
 
     <script>
-        function goToGame(targetUrl) {
-                    
-            // 跳轉頁面
-            window.location.href = targetUrl;
+        let pendingUrl = '';
+
+        function triggerWarning(targetUrl) {
+            pendingUrl = targetUrl;
+            document.getElementById('age-modal').style.display = 'flex';
+        }
+
+        function ageVerify(isAdult) {
+            if (isAdult) {
+                // 跳轉至遊戲
+                window.location.href = pendingUrl;
+            } else {
+                // 跳轉至 Never Gonna Give You Up 影片
+                window.location.href = 'https://www.youtube.com/watch?v=dQw4w9WgXcQ';
+            }
         }
     </script>
 </body>
